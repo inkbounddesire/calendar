@@ -3,252 +3,255 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>⏳ Valen ⇄ Earth · Visual Calendar Converter</title>
+  <title>🌿 Valen ⇄ Earth · Side‑by‑side Calendar</title>
   <style>
     * {
       box-sizing: border-box;
       font-family: system-ui, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
     }
     body {
-      background: linear-gradient(145deg, #1a2a1f 0%, #0f1b2c 100%);
+      background: #f5f3eb;  /* soft parchment */
       min-height: 100vh;
       margin: 0;
       padding: 24px;
       display: flex;
       justify-content: center;
       align-items: center;
-      color: #e9f1e0;
+      color: #1e2e1e;
     }
     .converter-card {
-      max-width: 1200px;
+      max-width: 1300px;
       width: 100%;
-      background: rgba(22, 34, 28, 0.85);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid #3f5e4b;
-      border-radius: 42px;
+      background: #ffffffdd;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border: 1px solid #c0bba8;
+      border-radius: 36px;
       padding: 28px 30px 36px;
-      box-shadow: 0 25px 40px -10px rgba(0, 0, 0, 0.7), 0 0 0 1px #2f4a3a inset;
+      box-shadow: 0 12px 28px -8px rgba(40, 30, 10, 0.12);
+      background-color: #fefcf6;
     }
     h1 {
       margin: 0 0 6px 0;
       font-weight: 400;
-      font-size: 2.4rem;
-      letter-spacing: 2px;
+      font-size: 2.2rem;
+      letter-spacing: 1px;
       display: flex;
       align-items: center;
       gap: 12px;
+      color: #2c422c;
     }
     h1 span {
-      background: #3a5e4c;
-      padding: 2px 16px;
+      background: #d9d0b5;
+      padding: 4px 18px;
       border-radius: 100px;
-      font-size: 1rem;
-      font-weight: 300;
-      color: #cfeadb;
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: #1f3a1f;
     }
     .subtitle {
       margin-top: -2px;
-      margin-bottom: 28px;
+      margin-bottom: 20px;
       font-style: italic;
-      color: #aac7b4;
-      border-bottom: 1px dashed #4e7362;
-      padding-bottom: 12px;
+      color: #5e6e4e;
+      border-bottom: 1px dashed #b9b094;
+      padding-bottom: 10px;
     }
     .anchor-note {
-      background: #1e3a2a;
-      padding: 10px 20px;
-      border-radius: 60px;
-      font-size: 1.1rem;
+      background: #e7e1cf;
+      padding: 10px 22px;
+      border-radius: 48px;
+      font-size: 1rem;
       text-align: center;
-      border-left: 6px solid #c9b16b;
-      margin-bottom: 30px;
-      color: #f0f2de;
+      border-left: 6px solid #9f8345;
+      margin-bottom: 24px;
+      color: #23311e;
+      font-weight: 450;
     }
     .two-panels {
       display: flex;
-      flex-wrap: wrap;
-      gap: 24px;
+      flex-wrap: nowrap;      /* keep side‑by‑side on desktop */
+      gap: 20px;
+      align-items: stretch;
     }
     .panel {
-      flex: 1 1 300px;
-      background: #142118d6;
-      border-radius: 32px;
-      padding: 24px 22px;
-      box-shadow: inset 0 2px 6px #0a130e, 0 8px 12px -4px #030906;
-      border: 1px solid #3a5f49;
+      flex: 1 1 0;            /* equal width */
+      min-width: 340px;
+      background: #faf8f0;
+      border-radius: 28px;
+      padding: 22px 20px;
+      box-shadow: inset 0 1px 4px #f0ede2, 0 6px 12px -6px rgba(60, 50, 30, 0.08);
+      border: 1px solid #d6cdb2;
     }
     .panel h2 {
       margin-top: 0;
       margin-bottom: 20px;
-      font-weight: 300;
+      font-weight: 350;
       font-size: 1.9rem;
       display: flex;
       align-items: center;
-      gap: 8px;
-    }
-    .panel h2 i {
-      font-size: 1.8rem;
+      gap: 6px;
+      color: #2e462e;
+      border-bottom: 1px solid #dbd2bc;
+      padding-bottom: 8px;
     }
     .input-group {
       display: flex;
       flex-wrap: wrap;
       align-items: baseline;
       gap: 8px 12px;
-      margin-bottom: 24px;
+      margin-bottom: 22px;
     }
     .input-group label {
-      min-width: 60px;
+      min-width: 50px;
       font-weight: 500;
-      color: #c6ddcf;
+      color: #3f5532;
     }
-    .input-group input {
-      background: #0c1912;
-      border: 1px solid #4f7863;
-      border-radius: 28px;
-      padding: 10px 18px;
-      color: #f3f9e9;
-      font-size: 1.1rem;
-      width: 120px;
-      outline: none;
-      transition: all 0.2s;
-    }
-    .input-group input:focus {
-      border-color: #dbbb6b;
-      box-shadow: 0 0 0 3px #4e6b3a55;
-    }
-    .input-group select {
-      background: #0c1912;
-      border: 1px solid #4f7863;
+    .input-group input, .input-group select {
+      background: #fffdf9;
+      border: 1px solid #bcb09a;
       border-radius: 30px;
-      padding: 10px 18px;
-      color: #f3f9e9;
+      padding: 9px 16px;
+      color: #1c2b14;
       font-size: 1rem;
-      cursor: pointer;
       outline: none;
+      transition: all 0.15s;
+      box-shadow: inset 0 1px 3px #e6dfd0;
+    }
+    .input-group input:focus, .input-group select:focus {
+      border-color: #a5833e;
+      box-shadow: 0 0 0 3px #e3d6b8;
     }
     .flex-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px 12px;
+      gap: 8px 12px;
       align-items: center;
     }
     .calendar-preview {
-      margin: 30px 0 10px;
+      margin: 20px 0 10px;
     }
     .calendar-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      gap: 6px;
+      gap: 5px;
       text-align: center;
-      margin-top: 12px;
+      margin-top: 8px;
     }
     .weekday-header {
       font-weight: 600;
-      color: #c2b28b;
-      padding-bottom: 6px;
-      font-size: 0.9rem;
+      color: #7d6e4b;
+      padding-bottom: 4px;
+      font-size: 0.8rem;
+      text-transform: uppercase;
     }
     .cal-cell {
-      background: #172e1f;
-      border-radius: 18px;
-      padding: 8px 4px;
-      font-size: 0.95rem;
-      border: 1px solid #2e5a40;
-      color: #deedd9;
-      transition: 0.1s ease;
+      background: #f4efe2;
+      border-radius: 20px;
+      padding: 8px 2px;
+      font-size: 0.9rem;
+      border: 1px solid #cec6ae;
+      color: #2e3d24;
+      transition: 0.1s;
+      cursor: pointer;
     }
     .cal-cell.highlight {
-      background: #b99b4b;
-      color: #0a1a0e;
+      background: #c9af7a;
+      color: #13200e;
       font-weight: bold;
-      border-color: #ecd07e;
-      box-shadow: 0 0 12px #eac46a88;
+      border-color: #a5833e;
+      box-shadow: 0 2px 8px #d4bc8c;
     }
     .cal-cell.other-month {
-      opacity: 0.45;
+      opacity: 0.3;
+      background: #ece7db;
     }
     .month-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin: 8px 0 4px;
+      margin: 4px 0 8px;
     }
     .month-name {
-      font-size: 1.4rem;
-      font-weight: 300;
-      text-transform: uppercase;
-      letter-spacing: 4px;
+      font-size: 1.3rem;
+      font-weight: 350;
+      letter-spacing: 2px;
+      color: #3f5532;
     }
     .nav-btn {
-      background: none;
-      border: 1px solid #5f826b;
-      color: #d4e6d4;
-      font-size: 1.8rem;
-      width: 44px;
-      height: 44px;
+      background: #f0eadc;
+      border: 1px solid #b7aa8f;
+      color: #3b4f2e;
+      font-size: 1.6rem;
+      width: 40px;
+      height: 40px;
       border-radius: 40px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: 0.2s;
+      transition: 0.15s;
+      box-shadow: 0 2px 4px #ddd2be;
     }
     .nav-btn:hover {
-      background: #2c523b;
-      border-color: #b8a86b;
-      color: #fcf5e1;
+      background: #dbcfb2;
+      border-color: #8f7c58;
+      color: #1d2e12;
     }
     .conversion-result {
-      margin-top: 28px;
-      background: #102016;
-      border-radius: 24px;
-      padding: 18px 22px;
-      border-left: 10px solid #a5873f;
+      margin-top: 30px;
+      background: #eae3d2;
+      border-radius: 28px;
+      padding: 18px 26px;
+      border-left: 10px solid #a5833e;
       font-size: 1.3rem;
+      color: #1e351a;
+      box-shadow: inset 0 0 0 1px #f3ede0;
     }
     .valen-meta {
       font-size: 0.9rem;
       opacity: 0.8;
       margin-top: 8px;
+      color: #4d5e3c;
     }
     button {
-      background: #5e7f63;
+      background: #7f8f6b;
       border: none;
       border-radius: 48px;
       padding: 12px 28px;
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #f2f9ea;
-      border-bottom: 3px solid #1e3627;
+      font-size: 1rem;
+      font-weight: 500;
+      color: #fcf9f2;
+      border-bottom: 3px solid #4f6240;
       cursor: pointer;
       transition: all 0.15s;
-      box-shadow: 0 4px 8px #020805;
+      box-shadow: 0 4px 6px #cfc6b2;
     }
     button:hover {
-      background: #789f7e;
+      background: #9aaa84;
       border-bottom-width: 2px;
       transform: translateY(1px);
-      box-shadow: 0 2px 6px #020805;
-    }
-    .swap-icon {
-      font-size: 2rem;
-      margin: 0 6px;
+      box-shadow: 0 2px 6px #c2b69e;
     }
     .footer-note {
       margin-top: 16px;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       text-align: right;
-      color: #8cab93;
+      color: #6f765b;
+    }
+    /* Valen grid adjustments */
+    #valenDayGrid {
+      grid-template-columns: repeat(20, 1fr);  /* will be set by js anyway */
+      gap: 3px;
     }
   </style>
 </head>
 <body>
 <div class="converter-card">
   <h1>🌍 Valen · Earth <span>486d · 20h47m</span></h1>
-  <div class="subtitle">↻ visual calendar converter · anchor: 23 Sept 2264 = 754 Valen day 2</div>
+  <div class="subtitle">↻ side‑by‑side calendar · anchor: 23 Sept 2264 = 754 Valen day 2</div>
   <div class="anchor-note">
-    ⚓ FIXED ANCHOR · Earth: <strong>23 September 2264</strong>  ⇢  Valen: <strong>Year 754, Day 2</strong> (Valen day length: 20h 47m)
+    ⚓ FIXED ANCHOR · Earth: <strong>23 September 2264</strong>  ⇢  Valen: <strong>Year 754, Day 2</strong> (Valen day: 20h 47m)
   </div>
 
   <div class="two-panels">
@@ -272,7 +275,7 @@
           <div class="weekday-header">Thu</div><div class="weekday-header">Fri</div><div class="weekday-header">Sat</div><div class="weekday-header">Sun</div>
         </div>
       </div>
-      <div style="margin-top: 16px;">
+      <div style="margin-top: 20px; text-align: right;">
         <button id="earthToValenBtn">⏩ Convert to Valen →</button>
       </div>
     </div>
@@ -286,27 +289,25 @@
         <label style="margin-left: 6px;">Day</label>
         <input type="number" id="valenDay" value="2" min="1" max="486" step="1" style="width:90px;">
       </div>
-      <div style="margin: 12px 0 18px; font-size:1rem; background:#1e3a2a; padding:8px 16px; border-radius:40px;">
+      <div style="margin: 10px 0 14px; font-size:0.95rem; background:#e5ddca; padding:6px 14px; border-radius:40px; color:#263f1e;">
         ⏱️ Day length: <strong>20h 47m</strong> · 1 Valen year = 486 days
       </div>
-      <!-- Visual calendar representation (Valen has 486 days, we display a 'month-like' view: 30-day blocks) -->
       <div class="calendar-preview">
         <div class="month-header">
-          <span class="month-name">📅 Year day block</span>
+          <span class="month-name">📅 Day grid (1–486)</span>
         </div>
-        <div style="margin: 8px 0 4px; font-size:0.9rem; color:#b9cfbe;">Valen days (1–486) · current highlighted</div>
-        <div class="calendar-grid" id="valenDayGrid" style="grid-template-columns: repeat(10, 1fr);">
-          <!-- dynamically filled with 486 day markers (1-486), we'll show 30 per row? 486/10=48.6 rows, too tall. better use 15 cols? 
-               we'll generate a compact grid 20 cols, 25 rows to represent all days. We'll implement in js -->
+        <div style="margin: 4px 0 4px; font-size:0.8rem; color:#6a715a;">click any day to select</div>
+        <div class="calendar-grid" id="valenDayGrid" style="grid-template-columns: repeat(20, 1fr);">
+          <!-- dynamic 486 days -->
         </div>
       </div>
-      <div style="margin-top: 20px;">
+      <div style="margin-top: 20px; text-align: left;">
         <button id="valenToEarthBtn">← Convert to Earth</button>
       </div>
     </div>
   </div>
 
-  <!-- CONVERSION RESULT PANEL -->
+  <!-- CONVERSION RESULT -->
   <div class="conversion-result" id="resultDisplay">
     <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
       <span id="resultMainText">📌 23 September 2264  ⇢  Valen 754 · Day 2</span>
@@ -314,7 +315,7 @@
     <div id="resultDetails" class="valen-meta"></div>
   </div>
   <div class="footer-note">
-    ⚡ based on exact anchor · earth day = 24h · valen day = 20h 47m (20.78333h) · 1 valen year = 486 valen days
+    ⚡ based on exact anchor · earth day = 24h · valen day = 20h 47m · 1 valen year = 486 days
   </div>
 </div>
 
@@ -324,71 +325,45 @@
 
     // ---------- CONSTANTS & ANCHOR ----------
     const VALEN_DAYS_PER_YEAR = 486;
-    const VALEN_DAY_HOURS = 20 + 47/60;  // 20.783333... hours
+    const VALEN_DAY_HOURS = 20 + 47/60;  // 20.78333...
     const EARTH_DAY_HOURS = 24;
 
-    // Anchor: Earth 2264-09-23 00:00 (we treat as start of day)
-    // Corresponds to Valen year 754, day 2 (day index 1 = day1, so day 2 = index 1)
-    const ANCHOR_EARTH = new Date(2264, 8, 23); // month 8 = September
+    // Anchor: Earth 2264-09-23 00:00 UTC
+    const ANCHOR_EARTH = new Date(Date.UTC(2264, 8, 23, 0, 0, 0, 0));
     const ANCHOR_VALEN_YEAR = 754;
     const ANCHOR_VALEN_DAY = 2;   // 1-indexed
 
-    // Convert anchor to Julian Day Number (simplified, using UTC noon? we don't need high precision across millennia, 
-    // we'll use a consistent epoch: days since 1970-01-01 as floating point, but careful with timezone.
-    // We'll use UTC date to avoid DST. setUTCHours(0,0,0,0) to get exact start of day.
-    const anchorEarthDate = new Date(Date.UTC(2264, 8, 23, 0, 0, 0, 0)); // 23 Sept 2264 00:00 UTC
-    const anchorEarthTime = anchorEarthDate.getTime(); // ms
-
-    // Earth reference epoch: 1970-01-01 00:00 UTC
     const epochEarth = new Date(Date.UTC(1970, 0, 1, 0, 0, 0, 0));
     const MS_PER_EARTH_DAY = EARTH_DAY_HOURS * 3600 * 1000;
     
-    // Anchor Earth days since epoch (floating point, whole days)
-    const anchorEarthDaysSinceEpoch = (anchorEarthTime - epochEarth.getTime()) / MS_PER_EARTH_DAY;
-
-    // Convert anchor Valen date to total Valen days since Valen "epoch" (we define Valen day 1 year 1 as reference)
-    // But easier: total Valen days elapsed from anchor.
-    // Valen total days since year 1 day 1 = (anchorValenYear-1)*486 + (anchorValenDay-1)
+    const anchorEarthDaysSinceEpoch = (ANCHOR_EARTH.getTime() - epochEarth.getTime()) / MS_PER_EARTH_DAY;
     const anchorValenTotalDays = (ANCHOR_VALEN_YEAR - 1) * VALEN_DAYS_PER_YEAR + (ANCHOR_VALEN_DAY - 1);
+    const VALEN_DAY_EARTH_DAYS = VALEN_DAY_HOURS / EARTH_DAY_HOURS;
 
-    // Now relationship: anchorEarthDaysSinceEpoch (Earth) ↔ anchorValenTotalDays (Valen)
-    // But we must account for different day lengths.
-    // The actual physical time elapsed since a common epoch: we can use Earth days as master time.
-    // We need: Earth days → Valen days conversion factor.
-    const VALEN_DAY_EARTH_DAYS = VALEN_DAY_HOURS / EARTH_DAY_HOURS; // ~0.86597 Earth days per Valen day
-
-    // So: Valen total days = Valen days since Valen epoch = anchorValenTotalDays + (EarthDaysSinceEpoch - anchorEarthDaysSinceEpoch) / VALEN_DAY_EARTH_DAYS
-    // Because 1 Earth day = 1/VALEN_DAY_EARTH_DAYS  Valen days.
-
-    // Helper: Earth days since epoch from Date object (UTC)
     function earthDaysFromDate(year, month, day) {
       const d = new Date(Date.UTC(year, month, day, 0, 0, 0, 0));
       return (d.getTime() - epochEarth.getTime()) / MS_PER_EARTH_DAY;
     }
 
-    // Convert Earth days since epoch → Valen total days (floating)
     function earthDaysToValenTotal(earthDays) {
       const deltaEarth = earthDays - anchorEarthDaysSinceEpoch;
       const deltaValen = deltaEarth / VALEN_DAY_EARTH_DAYS;
       return anchorValenTotalDays + deltaValen;
     }
 
-    // Convert Valen total days → Earth days since epoch
     function valenTotalToEarthDays(valenTotal) {
       const deltaValen = valenTotal - anchorValenTotalDays;
       const deltaEarth = deltaValen * VALEN_DAY_EARTH_DAYS;
       return anchorEarthDaysSinceEpoch + deltaEarth;
     }
 
-    // Valen total days to year & day (1-indexed)
     function valenTotalToYearDay(valenTotal) {
-      let total = Math.floor(valenTotal); // we work with integer day numbers
+      let total = Math.floor(valenTotal);
       const year = Math.floor(total / VALEN_DAYS_PER_YEAR) + 1;
       const dayOfYear = (total % VALEN_DAYS_PER_YEAR) + 1;
       return { year, day: dayOfYear };
     }
 
-    // Earth days since epoch → Date object (UTC)
     function earthDaysToUTCDate(earthDays) {
       const ms = epochEarth.getTime() + earthDays * MS_PER_EARTH_DAY;
       return new Date(ms);
@@ -396,13 +371,12 @@
 
     // ---------- UI STATE ----------
     let currentEarthYear = 2264;
-    let currentEarthMonth = 8; // 0-index, September
+    let currentEarthMonth = 8; // September
     let currentEarthDay = 23;
     
     let currentValenYear = 754;
     let currentValenDay = 2;
 
-    // DOM elements
     const earthYearInput = document.getElementById('earthYear');
     const earthMonthSelect = document.getElementById('earthMonth');
     const earthDayInput = document.getElementById('earthDay');
@@ -419,8 +393,8 @@
     const earthToValenBtn = document.getElementById('earthToValenBtn');
     const valenToEarthBtn = document.getElementById('valenToEarthBtn');
 
-    // Populate month selector
     const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    
     function populateMonthSelect() {
       earthMonthSelect.innerHTML = '';
       monthNames.forEach((m, idx) => {
@@ -433,15 +407,11 @@
     }
     populateMonthSelect();
 
-    // ---------- EARTH CALENDAR RENDERING ----------
     function renderEarthCalendar() {
       const year = currentEarthYear;
       const month = currentEarthMonth;
       const firstDay = new Date(Date.UTC(year, month, 1, 0, 0, 0));
-      const startDayOfWeek = firstDay.getUTCDay(); // 0 = Sunday
-      // We want Mon=0 ... Sun=6. Convert: (day+6)%7
-      let startOffset = (startDayOfWeek + 6) % 7; // Monday = 0
-
+      let startOffset = (firstDay.getUTCDay() + 6) % 7; // Monday=0
       const daysInMonth = new Date(Date.UTC(year, month+1, 0)).getUTCDate();
       
       earthMonthDisplay.textContent = `${monthNames[month]} ${year}`;
@@ -452,7 +422,6 @@
       `;
       
       let cellCount = 0;
-      // empty cells before 1st
       for (let i=0; i<startOffset; i++) {
         gridHtml += `<div class="cal-cell other-month"></div>`;
         cellCount++;
@@ -460,12 +429,10 @@
       
       for (let d=1; d<=daysInMonth; d++) {
         const isSelected = (year === currentEarthYear && month === currentEarthMonth && d === currentEarthDay);
-        const cls = `cal-cell ${isSelected ? 'highlight' : ''}`;
-        gridHtml += `<div class="${cls}" data-day="${d}">${d}</div>`;
+        gridHtml += `<div class="cal-cell ${isSelected ? 'highlight' : ''}" data-day="${d}">${d}</div>`;
         cellCount++;
       }
       
-      // fill remaining to complete grid (6 rows *7 =42 cells)
       while (cellCount < 42) {
         gridHtml += `<div class="cal-cell other-month"></div>`;
         cellCount++;
@@ -473,19 +440,17 @@
       
       earthCalendarGrid.innerHTML = gridHtml;
       
-      // Attach click listeners
       document.querySelectorAll('#earthCalendarGrid .cal-cell[data-day]').forEach(cell => {
         cell.addEventListener('click', (e) => {
           const day = parseInt(cell.dataset.day, 10);
           currentEarthDay = day;
           earthDayInput.value = day;
           renderEarthCalendar();
-          updateFromEarth(); // sync Valen
+          updateFromEarth();
         });
       });
     }
 
-    // Update Earth UI from state
     function updateEarthUI() {
       earthYearInput.value = currentEarthYear;
       earthMonthSelect.value = currentEarthMonth;
@@ -493,14 +458,10 @@
       renderEarthCalendar();
     }
 
-    // ---------- VALEN GRID (visual 486 days) ----------
     function renderValenGrid() {
-      const year = currentValenYear;
       const selectedDay = currentValenDay;
-      
-      // build grid: 20 columns, rows enough for 486 cells
       const cols = 20;
-      const rows = Math.ceil(VALEN_DAYS_PER_YEAR / cols); // 25 rows
+      const rows = Math.ceil(VALEN_DAYS_PER_YEAR / cols);
       let html = '';
       for (let r=0; r<rows; r++) {
         for (let c=0; c<cols; c++) {
@@ -533,7 +494,6 @@
       renderValenGrid();
     }
 
-    // ---------- CONVERSION LOGIC ----------
     function earthToValen(year, month, day) {
       const earthDays = earthDaysFromDate(year, month, day);
       const valenTotal = earthDaysToValenTotal(earthDays);
@@ -544,14 +504,9 @@
       const totalValen = (valenYear - 1) * VALEN_DAYS_PER_YEAR + (valenDay - 1);
       const earthDays = valenTotalToEarthDays(totalValen);
       const date = earthDaysToUTCDate(earthDays);
-      return {
-        year: date.getUTCFullYear(),
-        month: date.getUTCMonth(),
-        day: date.getUTCDate()
-      };
+      return { year: date.getUTCFullYear(), month: date.getUTCMonth(), day: date.getUTCDate() };
     }
 
-    // Update Valen from Earth state
     function updateFromEarth() {
       try {
         const conv = earthToValen(currentEarthYear, currentEarthMonth, currentEarthDay);
@@ -559,9 +514,7 @@
         currentValenDay = conv.day;
         updateValenUI();
         displayResult();
-      } catch(e) {
-        console.warn(e);
-      }
+      } catch(e) { console.warn(e); }
     }
 
     function updateFromValen() {
@@ -572,101 +525,77 @@
         currentEarthDay = earth.day;
         updateEarthUI();
         displayResult();
-      } catch(e) {
-        console.warn(e);
-      }
+      } catch(e) { console.warn(e); }
     }
 
     function displayResult() {
       const earthDateStr = `${currentEarthDay} ${monthNames[currentEarthMonth]} ${currentEarthYear}`;
       const valenStr = `Valen ${currentValenYear} · Day ${currentValenDay}`;
       resultMain.innerHTML = `🌍 ${earthDateStr}  ⇢  🪐 ${valenStr}`;
-      
-      // additional details
-      const earthDaysVal = earthDaysFromDate(currentEarthYear, currentEarthMonth, currentEarthDay);
-      const valenTotal = earthDaysToValenTotal(earthDaysVal);
-      const preciseValenDay = valenTotal - (currentValenYear-1)*VALEN_DAYS_PER_YEAR;
-      resultDetails.innerHTML = `📐 precise Valen day: ${preciseValenDay.toFixed(4)} · 1 Valen day = ${VALEN_DAY_HOURS.toFixed(3)}h · anchor: 23 Sep 2264 = 754.2`;
+      const earthDays = earthDaysFromDate(currentEarthYear, currentEarthMonth, currentEarthDay);
+      const valenTotal = earthDaysToValenTotal(earthDays);
+      const precise = valenTotal - (currentValenYear-1)*VALEN_DAYS_PER_YEAR;
+      resultDetails.innerHTML = `📐 precise Valen day: ${precise.toFixed(4)} · 1 Valen day = ${VALEN_DAY_HOURS.toFixed(3)}h · anchor: 23 Sep 2264 = 754.2`;
     }
 
-    // ---------- EVENT LISTENERS ----------
+    // Event wiring
     earthPrev.addEventListener('click', () => {
-      if (currentEarthMonth === 0) {
-        currentEarthMonth = 11;
-        currentEarthYear -= 1;
-      } else {
-        currentEarthMonth -= 1;
-      }
+      if (currentEarthMonth === 0) { currentEarthMonth = 11; currentEarthYear -= 1; }
+      else { currentEarthMonth -= 1; }
       const daysInNew = new Date(Date.UTC(currentEarthYear, currentEarthMonth+1, 0)).getUTCDate();
       if (currentEarthDay > daysInNew) currentEarthDay = daysInNew;
-      updateEarthUI();
-      updateFromEarth();
+      updateEarthUI(); updateFromEarth();
     });
     
     earthNext.addEventListener('click', () => {
-      if (currentEarthMonth === 11) {
-        currentEarthMonth = 0;
-        currentEarthYear += 1;
-      } else {
-        currentEarthMonth += 1;
-      }
+      if (currentEarthMonth === 11) { currentEarthMonth = 0; currentEarthYear += 1; }
+      else { currentEarthMonth += 1; }
       const daysInNew = new Date(Date.UTC(currentEarthYear, currentEarthMonth+1, 0)).getUTCDate();
       if (currentEarthDay > daysInNew) currentEarthDay = daysInNew;
-      updateEarthUI();
-      updateFromEarth();
+      updateEarthUI(); updateFromEarth();
     });
 
     earthYearInput.addEventListener('change', () => {
-      let y = parseInt(earthYearInput.value, 10);
-      if (isNaN(y) || y<1) y=2264;
+      let y = parseInt(earthYearInput.value, 10); if (isNaN(y)||y<1) y=2264;
       currentEarthYear = y;
       const daysInMonth = new Date(Date.UTC(currentEarthYear, currentEarthMonth+1, 0)).getUTCDate();
       if (currentEarthDay > daysInMonth) currentEarthDay = daysInMonth;
-      updateEarthUI();
-      updateFromEarth();
+      updateEarthUI(); updateFromEarth();
     });
     
     earthMonthSelect.addEventListener('change', () => {
       currentEarthMonth = parseInt(earthMonthSelect.value, 10);
       const daysInMonth = new Date(Date.UTC(currentEarthYear, currentEarthMonth+1, 0)).getUTCDate();
       if (currentEarthDay > daysInMonth) currentEarthDay = daysInMonth;
-      updateEarthUI();
-      updateFromEarth();
+      updateEarthUI(); updateFromEarth();
     });
     
     earthDayInput.addEventListener('change', () => {
       let d = parseInt(earthDayInput.value, 10);
       const maxDays = new Date(Date.UTC(currentEarthYear, currentEarthMonth+1, 0)).getUTCDate();
-      if (isNaN(d) || d<1) d=1;
-      if (d>maxDays) d=maxDays;
+      if (isNaN(d)||d<1) d=1; if (d>maxDays) d=maxDays;
       currentEarthDay = d;
-      updateEarthUI();
-      updateFromEarth();
+      updateEarthUI(); updateFromEarth();
     });
 
     earthToValenBtn.addEventListener('click', updateFromEarth);
     
     valenYearInput.addEventListener('change', () => {
-      let y = parseInt(valenYearInput.value, 10);
-      if (isNaN(y) || y<1) y=754;
+      let y = parseInt(valenYearInput.value, 10); if (isNaN(y)||y<1) y=754;
       currentValenYear = y;
       if (currentValenDay > VALEN_DAYS_PER_YEAR) currentValenDay = VALEN_DAYS_PER_YEAR;
-      updateValenUI();
-      updateFromValen();
+      updateValenUI(); updateFromValen();
     });
     
     valenDayInput.addEventListener('change', () => {
       let d = parseInt(valenDayInput.value, 10);
-      if (isNaN(d) || d<1) d=1;
-      if (d>VALEN_DAYS_PER_YEAR) d=VALEN_DAYS_PER_YEAR;
+      if (isNaN(d)||d<1) d=1; if (d>VALEN_DAYS_PER_YEAR) d=VALEN_DAYS_PER_YEAR;
       currentValenDay = d;
-      updateValenUI();
-      updateFromValen();
+      updateValenUI(); updateFromValen();
     });
     
     valenToEarthBtn.addEventListener('click', updateFromValen);
 
-    // initial sync
     function initialize() {
       currentEarthYear = 2264; currentEarthMonth = 8; currentEarthDay = 23;
       currentValenYear = 754; currentValenDay = 2;
