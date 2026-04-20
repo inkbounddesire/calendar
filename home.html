@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🌿 Valen ⇄ Earth · Side‑by‑side Calendar</title>
+  <title>🌿 Valen ⇄ Earth · Calendar with Months</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -49,16 +49,23 @@
         <label style="margin-left: 6px;">Day</label>
         <input type="number" id="valenDay" value="2" min="1" max="486" step="1" style="width:90px;">
       </div>
-      <div style="margin: 10px 0 14px; font-size:0.95rem; background:#e5ddca; padding:6px 14px; border-radius:40px; color:#263f1e;">
+      <div style="margin: 10px 0 8px; font-size:0.95rem; background:#e5ddca; padding:6px 14px; border-radius:40px; color:#263f1e;">
         ⏱️ Day length: <strong>20h 47m</strong> · 1 Valen year = 486 days
       </div>
+      
+      <!-- Valen month navigation -->
+      <div class="valen-month-header">
+        <button class="nav-btn small" id="valenPrevMonth">←</button>
+        <span class="valen-month-name" id="valenMonthDisplay">First Len'tar</span>
+        <button class="nav-btn small" id="valenNextMonth">→</button>
+      </div>
+      <div style="margin: 4px 0 4px; font-size:0.8rem; color:#6a715a;">
+        <span id="valenDayRange">Days 1–150</span> · click any day to select
+      </div>
+      
       <div class="calendar-preview">
-        <div class="month-header">
-          <span class="month-name">📅 Day grid (1–486)</span>
-        </div>
-        <div style="margin: 4px 0 4px; font-size:0.8rem; color:#6a715a;">click any day to select</div>
-        <div class="calendar-grid" id="valenDayGrid" style="grid-template-columns: repeat(20, 1fr);">
-          <!-- dynamic 486 days -->
+        <div class="calendar-grid" id="valenDayGrid">
+          <!-- dynamic days for current Valen month -->
         </div>
       </div>
       <div style="margin-top: 20px; text-align: left;">
@@ -70,12 +77,12 @@
   <!-- CONVERSION RESULT -->
   <div class="conversion-result" id="resultDisplay">
     <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
-      <span id="resultMainText">📌 23 September 2264  ⇢  Valen 754 · Day 2</span>
+      <span id="resultMainText">📌 23 September 2264  ⇢  Valen 754 · Day 2 (First Len'tar)</span>
     </div>
     <div id="resultDetails" class="valen-meta"></div>
   </div>
   <div class="footer-note">
-    ⚡ based on exact anchor · earth day = 24h · valen day = 20h 47m · 1 valen year = 486 days
+    ⚡ Valen months: First Len'tar (150d) · Inter One (12d) · Second Len'tar (150d) · Inter Two (12d) · Third Len'tar (150d) · Inter Three (12d)
   </div>
 </div>
 
@@ -87,6 +94,16 @@
     const VALEN_DAYS_PER_YEAR = 486;
     const VALEN_DAY_HOURS = 20 + 47/60;  // 20.78333...
     const EARTH_DAY_HOURS = 24;
+
+    // Valen months definition
+    const VALEN_MONTHS = [
+      { name: "First Len'tar", days: 150, startDay: 1 },
+      { name: "Inter One", days: 12, startDay: 151 },
+      { name: "Second Len'tar", days: 150, startDay: 163 },
+      { name: "Inter Two", days: 12, startDay: 313 },
+      { name: "Third Len'tar", days: 150, startDay: 325 },
+      { name: "Inter Three", days: 12, startDay: 475 }
+    ];
 
     // Anchor: Earth 2264-09-23 00:00 UTC
     const ANCHOR_EARTH = new Date(Date.UTC(2264, 8, 23, 0, 0, 0, 0));
@@ -129,6 +146,23 @@
       return new Date(ms);
     }
 
+    // Get Valen month info from day of year (1-486)
+    function getValenMonthFromDay(dayOfYear) {
+      for (let i = 0; i < VALEN_MONTHS.length; i++) {
+        const month = VALEN_MONTHS[i];
+        if (dayOfYear >= month.startDay && dayOfYear < month.startDay + month.days) {
+          return {
+            index: i,
+            name: month.name,
+            days: month.days,
+            startDay: month.startDay,
+            dayInMonth: dayOfYear - month.startDay + 1
+          };
+        }
+      }
+      return null;
+    }
+
     // ---------- UI STATE ----------
     let currentEarthYear = 2264;
     let currentEarthMonth = 8; // September
@@ -136,6 +170,7 @@
     
     let currentValenYear = 754;
     let currentValenDay = 2;
+    let currentValenMonthIndex = 0; // 0 = First Len'tar
 
     const earthYearInput = document.getElementById('earthYear');
     const earthMonthSelect = document.getElementById('earthMonth');
@@ -145,6 +180,8 @@
     const valenYearInput = document.getElementById('valenYear');
     const valenDayInput = document.getElementById('valenDay');
     const valenDayGrid = document.getElementById('valenDayGrid');
+    const valenMonthDisplay = document.getElementById('valenMonthDisplay');
+    const valenDayRange = document.getElementById('valenDayRange');
     const resultMain = document.getElementById('resultMainText');
     const resultDetails = document.getElementById('resultDetails');
 
@@ -152,6 +189,8 @@
     const earthNext = document.getElementById('earthNextMonth');
     const earthToValenBtn = document.getElementById('earthToValenBtn');
     const valenToEarthBtn = document.getElementById('valenToEarthBtn');
+    const valenPrevMonth = document.getElementById('valenPrevMonth');
+    const valenNextMonth = document.getElementById('valenNextMonth');
 
     const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     
@@ -166,6 +205,14 @@
       earthMonthSelect.value = currentEarthMonth;
     }
     populateMonthSelect();
+
+    // Update current Valen month index based on day
+    function updateValenMonthFromDay() {
+      const monthInfo = getValenMonthFromDay(currentValenDay);
+      if (monthInfo) {
+        currentValenMonthIndex = monthInfo.index;
+      }
+    }
 
     function renderEarthCalendar() {
       const year = currentEarthYear;
@@ -219,21 +266,38 @@
     }
 
     function renderValenGrid() {
+      const month = VALEN_MONTHS[currentValenMonthIndex];
+      const startDay = month.startDay;
+      const daysInMonth = month.days;
       const selectedDay = currentValenDay;
-      const cols = 20;
-      const rows = Math.ceil(VALEN_DAYS_PER_YEAR / cols);
+      
+      valenMonthDisplay.textContent = month.name;
+      valenDayRange.textContent = `Days ${startDay}–${startDay + daysInMonth - 1}`;
+      
+      // Determine grid columns: for 150 days use 15 cols, for 12 days use 6 or 4
+      let cols;
+      if (daysInMonth === 150) {
+        cols = 15;
+      } else {
+        cols = 6; // for 12-day inter months
+      }
+      
+      const rows = Math.ceil(daysInMonth / cols);
       let html = '';
-      for (let r=0; r<rows; r++) {
-        for (let c=0; c<cols; c++) {
-          const dayNum = r*cols + c + 1;
-          if (dayNum > VALEN_DAYS_PER_YEAR) {
-            html += `<div class="cal-cell other-month" style="visibility:hidden;"></div>`;
-          } else {
+      
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const index = r * cols + c;
+          if (index < daysInMonth) {
+            const dayNum = startDay + index;
             const highlight = (dayNum === selectedDay) ? 'highlight' : '';
             html += `<div class="cal-cell ${highlight}" data-valenday="${dayNum}">${dayNum}</div>`;
+          } else {
+            html += `<div class="cal-cell other-month" style="visibility: hidden;"></div>`;
           }
         }
       }
+      
       valenDayGrid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
       valenDayGrid.innerHTML = html;
       
@@ -242,6 +306,7 @@
           const d = parseInt(cell.dataset.valenday, 10);
           currentValenDay = d;
           valenDayInput.value = d;
+          updateValenMonthFromDay();
           renderValenGrid();
           updateFromValen();
         });
@@ -251,6 +316,7 @@
     function updateValenUI() {
       valenYearInput.value = currentValenYear;
       valenDayInput.value = currentValenDay;
+      updateValenMonthFromDay();
       renderValenGrid();
     }
 
@@ -290,7 +356,9 @@
 
     function displayResult() {
       const earthDateStr = `${currentEarthDay} ${monthNames[currentEarthMonth]} ${currentEarthYear}`;
-      const valenStr = `Valen ${currentValenYear} · Day ${currentValenDay}`;
+      const monthInfo = getValenMonthFromDay(currentValenDay);
+      const monthName = monthInfo ? monthInfo.name : '';
+      const valenStr = `Valen ${currentValenYear} · Day ${currentValenDay} (${monthName})`;
       resultMain.innerHTML = `🌍 ${earthDateStr}  ⇢  🪐 ${valenStr}`;
       const earthDays = earthDaysFromDate(currentEarthYear, currentEarthMonth, currentEarthDay);
       const valenTotal = earthDaysToValenTotal(earthDays);
@@ -340,6 +408,37 @@
 
     earthToValenBtn.addEventListener('click', updateFromEarth);
     
+    // Valen month navigation
+    valenPrevMonth.addEventListener('click', () => {
+      if (currentValenMonthIndex > 0) {
+        currentValenMonthIndex--;
+      } else {
+        // Wrap to previous year
+        currentValenYear--;
+        currentValenMonthIndex = VALEN_MONTHS.length - 1;
+      }
+      const month = VALEN_MONTHS[currentValenMonthIndex];
+      currentValenDay = month.startDay;
+      valenDayInput.value = currentValenDay;
+      updateValenUI();
+      updateFromValen();
+    });
+    
+    valenNextMonth.addEventListener('click', () => {
+      if (currentValenMonthIndex < VALEN_MONTHS.length - 1) {
+        currentValenMonthIndex++;
+      } else {
+        // Wrap to next year
+        currentValenYear++;
+        currentValenMonthIndex = 0;
+      }
+      const month = VALEN_MONTHS[currentValenMonthIndex];
+      currentValenDay = month.startDay;
+      valenDayInput.value = currentValenDay;
+      updateValenUI();
+      updateFromValen();
+    });
+    
     valenYearInput.addEventListener('change', () => {
       let y = parseInt(valenYearInput.value, 10); if (isNaN(y)||y<1) y=754;
       currentValenYear = y;
@@ -359,6 +458,7 @@
     function initialize() {
       currentEarthYear = 2264; currentEarthMonth = 8; currentEarthDay = 23;
       currentValenYear = 754; currentValenDay = 2;
+      updateValenMonthFromDay();
       updateEarthUI();
       updateValenUI();
       displayResult();
