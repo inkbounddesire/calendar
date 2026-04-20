@@ -244,3 +244,8 @@ h1 {
     margin-top: 8px;
     color: #4d5e3c;
 }
+.cal-cell.leap-day {
+    background: #d4c4a0;
+    border-color: #b8a67c;
+    font-style: italic;
+}
