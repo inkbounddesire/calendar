@@ -5,14 +5,26 @@
   const VALEN_DAY_HOURS = 20 + 47/60;
   const EARTH_DAY_HOURS = 24;
 
-  const VALEN_MONTHS = [
-    { name: "First Len'tar", days: 150, startDay: 1, type: 'lentar' },
-    { name: "Inter One", days: 12, startDay: 151, type: 'inter' },
-    { name: "Second Len'tar", days: 150, startDay: 163, type: 'lentar' },
-    { name: "Inter Two", days: 12, startDay: 313, type: 'inter' },
-    { name: "Third Len'tar", days: 150, startDay: 325, type: 'lentar' },
-    { name: "Inter Three", days: 12, startDay: 475, type: 'inter' }
-  ];
+  // Valen leap year: every 11 years, Inter Two gets +2 days
+  function isValenLeapYear(year) {
+    return (year - 748) % 11 === 0;
+  }
+
+  function getValenMonthsForYear(year) {
+    const isLeap = isValenLeapYear(year);
+    return [
+      { name: "First Len'tar", days: 150, startDay: 1, type: 'lentar' },
+      { name: "Inter One", days: 12, startDay: 151, type: 'inter' },
+      { name: "Second Len'tar", days: 150, startDay: 163, type: 'lentar' },
+      { name: "Inter Two", days: isLeap ? 14 : 12, startDay: 313, type: 'inter' },
+      { name: "Third Len'tar", days: 150, startDay: isLeap ? 327 : 325, type: 'lentar' },
+      { name: "Inter Three", days: 12, startDay: isLeap ? 477 : 475, type: 'inter' }
+    ];
+  }
+
+  function getValenDaysPerYear(year) {
+    return isValenLeapYear(year) ? 488 : 486;
+  }
 
   const ANCHOR_EARTH = new Date(Date.UTC(2264, 8, 23));
   const ANCHOR_VALEN_YEAR = 754;
@@ -22,8 +34,31 @@
   const MS_PER_EARTH_DAY = 24 * 3600 * 1000;
   
   const anchorEarthDays = (ANCHOR_EARTH - epochEarth) / MS_PER_EARTH_DAY;
-  const anchorValenTotal = (ANCHOR_VALEN_YEAR - 1) * VALEN_DAYS_PER_YEAR + (ANCHOR_VALEN_DAY - 1);
+  
+  // Calculate anchor Valen total days accounting for leap years
+  function getValenTotalDaysBeforeYear(year) {
+    let days = 0;
+    for (let y = 1; y < year; y++) {
+      days += getValenDaysPerYear(y);
+    }
+    return days;
+  }
+  
+  const anchorValenTotal = getValenTotalDaysBeforeYear(ANCHOR_VALEN_YEAR) + (ANCHOR_VALEN_DAY - 1);
   const VALEN_DAY_EARTH_DAYS = VALEN_DAY_HOURS / EARTH_DAY_HOURS;
+
+  // Earth leap year rule
+  function isEarthLeapYear(year) {
+    if (year % 400 === 0) return true;
+    if (year % 100 === 0) return false;
+    return year % 4 === 0;
+  }
+
+  function getEarthDaysInMonth(year, month) {
+    const days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    if (month === 1 && isEarthLeapYear(year)) return 29;
+    return days[month];
+  }
 
   let currentEarthYear = 2264;
   let currentEarthMonth = 8;
@@ -59,9 +94,10 @@
   }
   populateMonthSelect();
 
-  function getValenMonthFromDay(dayOfYear) {
-    for (let i = 0; i < VALEN_MONTHS.length; i++) {
-      const m = VALEN_MONTHS[i];
+  function getValenMonthFromDay(year, dayOfYear) {
+    const months = getValenMonthsForYear(year);
+    for (let i = 0; i < months.length; i++) {
+      const m = months[i];
       if (dayOfYear >= m.startDay && dayOfYear < m.startDay + m.days) {
         return { index: i, name: m.name, days: m.days, startDay: m.startDay, type: m.type, dayInMonth: dayOfYear - m.startDay + 1 };
       }
@@ -81,15 +117,26 @@
     return anchorEarthDays + (valenTotal - anchorValenTotal) * VALEN_DAY_EARTH_DAYS;
   }
 
-  function earthToValen(y, m, d) {
-    const total = earthToValenTotal(earthDaysFromDate(y, m, d));
-    const year = Math.floor(total / VALEN_DAYS_PER_YEAR) + 1;
-    const day = Math.floor(total % VALEN_DAYS_PER_YEAR) + 1;
-    return { year, day };
+  function valenTotalToYearDay(valenTotal) {
+    let remaining = Math.floor(valenTotal);
+    let year = 1;
+    while (true) {
+      const daysInYear = getValenDaysPerYear(year);
+      if (remaining < daysInYear) {
+        return { year, day: remaining + 1 };
+      }
+      remaining -= daysInYear;
+      year++;
+    }
   }
 
-  function valenToEarth(y, dayOfYear) {
-    const total = (y - 1) * VALEN_DAYS_PER_YEAR + (dayOfYear - 1);
+  function earthToValen(y, m, d) {
+    const total = earthToValenTotal(earthDaysFromDate(y, m, d));
+    return valenTotalToYearDay(total);
+  }
+
+  function valenToEarth(valenYear, valenDayOfYear) {
+    let total = getValenTotalDaysBeforeYear(valenYear) + (valenDayOfYear - 1);
     const earthDays = valenTotalToEarthDays(total);
     const date = new Date(epochEarth.getTime() + earthDays * MS_PER_EARTH_DAY);
     return { year: date.getUTCFullYear(), month: date.getUTCMonth(), day: date.getUTCDate() };
@@ -100,9 +147,11 @@
     const month = currentEarthMonth;
     const firstDay = new Date(Date.UTC(year, month, 1));
     let startOffset = (firstDay.getUTCDay() + 6) % 7;
-    const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+    const daysInMonth = getEarthDaysInMonth(year, month);
     
-    earthMonthDisplay.textContent = `${monthNames[month]} ${year}`;
+    const isLeap = isEarthLeapYear(year);
+    const leapDisplay = (month === 1 && isLeap) ? ' (leap)' : '';
+    earthMonthDisplay.textContent = `${monthNames[month]} ${year}${leapDisplay}`;
     
     let html = '';
     let cellCount = 0;
@@ -131,11 +180,14 @@
   }
 
   function renderValenCalendar() {
-    const month = VALEN_MONTHS[currentValenMonthIndex];
-    const info = getValenMonthFromDay(currentValenDayOfYear);
+    const months = getValenMonthsForYear(currentValenYear);
+    const month = months[currentValenMonthIndex];
+    const info = getValenMonthFromDay(currentValenYear, currentValenDayOfYear);
     const selectedDayInMonth = info ? info.dayInMonth : 1;
     
-    valenMonthDisplay.textContent = month.name;
+    const isLeap = isValenLeapYear(currentValenYear);
+    const leapNote = (month.name === "Inter Two" && isLeap) ? ' (leap +2)' : '';
+    valenMonthDisplay.textContent = month.name + leapNote;
     valenDayRange.textContent = `Day ${selectedDayInMonth} of ${month.days}`;
     
     if (month.type === 'lentar') {
@@ -179,7 +231,8 @@
       let html = `<div class="inter-grid">`;
       for (let d = 1; d <= month.days; d++) {
         const selected = (d === selectedDayInMonth);
-        html += `<div class="cal-cell ${selected ? 'highlight' : ''}" data-vday="${month.startDay + d - 1}">${d}</div>`;
+        const extraClass = (month.name === "Inter Two" && isLeap && d > 12) ? 'leap-day' : '';
+        html += `<div class="cal-cell ${extraClass} ${selected ? 'highlight' : ''}" data-vday="${month.startDay + d - 1}">${d}</div>`;
       }
       html += `</div>`;
       valenCalendarContainer.innerHTML = html;
@@ -197,7 +250,8 @@
     const conv = earthToValen(currentEarthYear, currentEarthMonth, currentEarthDay);
     currentValenYear = conv.year;
     currentValenDayOfYear = conv.day;
-    currentValenMonthIndex = getValenMonthFromDay(currentValenDayOfYear).index;
+    const info = getValenMonthFromDay(currentValenYear, currentValenDayOfYear);
+    if (info) currentValenMonthIndex = info.index;
     updateUI();
   }
 
@@ -219,15 +273,20 @@
     renderEarthCalendar();
     renderValenCalendar();
     
-    const info = getValenMonthFromDay(currentValenDayOfYear);
-    resultMain.innerHTML = `📌 ${currentEarthDay} ${monthNames[currentEarthMonth]} ${currentEarthYear} ⇢ Valen ${currentValenYear} · ${info.name} day ${info.dayInMonth} (day ${currentValenDayOfYear})`;
-    resultDetails.innerHTML = `📐 1 Valen day = ${VALEN_DAY_HOURS.toFixed(3)}h · Year: 486 days`;
+    const info = getValenMonthFromDay(currentValenYear, currentValenDayOfYear);
+    const totalDays = getValenDaysPerYear(currentValenYear);
+    const isValenLeap = isValenLeapYear(currentValenYear);
+    const isEarthLeap = isEarthLeapYear(currentEarthYear);
+    
+    resultMain.innerHTML = `📌 ${currentEarthDay} ${monthNames[currentEarthMonth]} ${currentEarthYear} ⇢ Valen ${currentValenYear} · ${info.name} day ${info.dayInMonth}`;
+    resultDetails.innerHTML = `📐 Valen year: ${totalDays} days${isValenLeap ? ' (leap)' : ''} · Earth ${isEarthLeap ? 'leap' : 'common'} year · 1 Valen day = ${VALEN_DAY_HOURS.toFixed(3)}h`;
   }
 
+  // Event listeners
   document.getElementById('earthPrevMonth').addEventListener('click', () => {
     if (currentEarthMonth === 0) { currentEarthMonth = 11; currentEarthYear--; }
     else { currentEarthMonth--; }
-    const maxDays = new Date(Date.UTC(currentEarthYear, currentEarthMonth + 1, 0)).getUTCDate();
+    const maxDays = getEarthDaysInMonth(currentEarthYear, currentEarthMonth);
     if (currentEarthDay > maxDays) currentEarthDay = maxDays;
     updateFromEarth();
   });
@@ -235,55 +294,65 @@
   document.getElementById('earthNextMonth').addEventListener('click', () => {
     if (currentEarthMonth === 11) { currentEarthMonth = 0; currentEarthYear++; }
     else { currentEarthMonth++; }
-    const maxDays = new Date(Date.UTC(currentEarthYear, currentEarthMonth + 1, 0)).getUTCDate();
+    const maxDays = getEarthDaysInMonth(currentEarthYear, currentEarthMonth);
     if (currentEarthDay > maxDays) currentEarthDay = maxDays;
     updateFromEarth();
   });
 
   earthYearInput.addEventListener('change', () => {
     currentEarthYear = parseInt(earthYearInput.value) || 2264;
-    const maxDays = new Date(Date.UTC(currentEarthYear, currentEarthMonth + 1, 0)).getUTCDate();
+    const maxDays = getEarthDaysInMonth(currentEarthYear, currentEarthMonth);
     if (currentEarthDay > maxDays) currentEarthDay = maxDays;
     updateFromEarth();
   });
 
   earthMonthSelect.addEventListener('change', () => {
     currentEarthMonth = parseInt(earthMonthSelect.value);
-    const maxDays = new Date(Date.UTC(currentEarthYear, currentEarthMonth + 1, 0)).getUTCDate();
+    const maxDays = getEarthDaysInMonth(currentEarthYear, currentEarthMonth);
     if (currentEarthDay > maxDays) currentEarthDay = maxDays;
     updateFromEarth();
   });
 
   earthDayInput.addEventListener('change', () => {
     currentEarthDay = parseInt(earthDayInput.value) || 1;
-    const maxDays = new Date(Date.UTC(currentEarthYear, currentEarthMonth + 1, 0)).getUTCDate();
+    const maxDays = getEarthDaysInMonth(currentEarthYear, currentEarthMonth);
     if (currentEarthDay > maxDays) currentEarthDay = maxDays;
     updateFromEarth();
   });
 
   document.getElementById('valenPrevMonth').addEventListener('click', () => {
+    const months = getValenMonthsForYear(currentValenYear);
     if (currentValenMonthIndex > 0) { currentValenMonthIndex--; }
-    else { currentValenYear--; currentValenMonthIndex = VALEN_MONTHS.length - 1; }
-    currentValenDayOfYear = VALEN_MONTHS[currentValenMonthIndex].startDay;
+    else { currentValenYear--; currentValenMonthIndex = getValenMonthsForYear(currentValenYear).length - 1; }
+    const month = getValenMonthsForYear(currentValenYear)[currentValenMonthIndex];
+    currentValenDayOfYear = month.startDay;
     updateFromValen();
   });
 
   document.getElementById('valenNextMonth').addEventListener('click', () => {
-    if (currentValenMonthIndex < VALEN_MONTHS.length - 1) { currentValenMonthIndex++; }
+    const months = getValenMonthsForYear(currentValenYear);
+    if (currentValenMonthIndex < months.length - 1) { currentValenMonthIndex++; }
     else { currentValenYear++; currentValenMonthIndex = 0; }
-    currentValenDayOfYear = VALEN_MONTHS[currentValenMonthIndex].startDay;
+    const month = getValenMonthsForYear(currentValenYear)[currentValenMonthIndex];
+    currentValenDayOfYear = month.startDay;
     updateFromValen();
   });
 
   valenYearInput.addEventListener('change', () => {
     currentValenYear = parseInt(valenYearInput.value) || 754;
-    if (currentValenDayOfYear > VALEN_DAYS_PER_YEAR) currentValenDayOfYear = VALEN_DAYS_PER_YEAR;
+    const maxDay = getValenDaysPerYear(currentValenYear);
+    if (currentValenDayOfYear > maxDay) currentValenDayOfYear = maxDay;
+    const info = getValenMonthFromDay(currentValenYear, currentValenDayOfYear);
+    if (info) currentValenMonthIndex = info.index;
     updateFromValen();
   });
 
   valenDayInput.addEventListener('change', () => {
     currentValenDayOfYear = parseInt(valenDayInput.value) || 1;
-    if (currentValenDayOfYear > VALEN_DAYS_PER_YEAR) currentValenDayOfYear = VALEN_DAYS_PER_YEAR;
+    const maxDay = getValenDaysPerYear(currentValenYear);
+    if (currentValenDayOfYear > maxDay) currentValenDayOfYear = maxDay;
+    const info = getValenMonthFromDay(currentValenYear, currentValenDayOfYear);
+    if (info) currentValenMonthIndex = info.index;
     updateFromValen();
   });
 
