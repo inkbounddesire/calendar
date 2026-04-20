@@ -12,14 +12,14 @@ function populateEarthMonthSelect(selectElement, currentMonth) {
 }
 
 function renderEarthCalendar(state, elements) {
-  const { year, month, day } = state;
-  const firstDay = new Date(Date.UTC(year, month, 1));
+  const { earthYear, earthMonth, earthDay } = state;
+  const firstDay = new Date(Date.UTC(earthYear, earthMonth, 1));
   const startOffset = (firstDay.getUTCDay() + 6) % 7;
-  const daysInMonth = getEarthDaysInMonth(year, month);
+  const daysInMonth = getEarthDaysInMonth(earthYear, earthMonth);
   
-  const isLeap = isEarthLeapYear(year);
-  const leapDisplay = (month === 1 && isLeap) ? ' (leap)' : '';
-  elements.monthDisplay.textContent = `${EARTH_MONTH_NAMES[month]} ${year}${leapDisplay}`;
+  const isLeap = isEarthLeapYear(earthYear);
+  const leapDisplay = (earthMonth === 1 && isLeap) ? ' (leap)' : '';
+  elements.earthMonthDisplay.textContent = `${EARTH_MONTH_NAMES[earthMonth]} ${earthYear}${leapDisplay}`;
   
   let html = '';
   let cellCount = 0;
@@ -30,7 +30,7 @@ function renderEarthCalendar(state, elements) {
   }
   
   for (let d = 1; d <= daysInMonth; d++) {
-    const selected = (year === state.year && month === state.month && d === day);
+    const selected = (earthYear === state.earthYear && earthMonth === state.earthMonth && d === earthDay);
     html += `<div class="cal-cell ${selected ? 'highlight' : ''}" data-day="${d}">${d}</div>`;
     cellCount++;
   }
@@ -40,27 +40,25 @@ function renderEarthCalendar(state, elements) {
     cellCount++;
   }
   
-  elements.calendarGrid.innerHTML = html;
-  
-  return html;
+  elements.earthCalendarGrid.innerHTML = html;
 }
 
 function renderValenCalendar(state, elements) {
-  const { year, dayOfYear, monthIndex } = state;
-  const months = getValenMonthsForYear(year);
-  const month = months[monthIndex];
-  const info = getValenMonthFromDay(year, dayOfYear);
+  const { valenYear, valenDayOfYear, valenMonthIndex } = state;
+  const months = getValenMonthsForYear(valenYear);
+  const month = months[valenMonthIndex];
+  const info = getValenMonthFromDay(valenYear, valenDayOfYear);
   const selectedDayInMonth = info ? info.dayInMonth : 1;
   
-  const isLeap = isValenLeapYear(year);
+  const isLeap = isValenLeapYear(valenYear);
   const leapNote = (month.name === "Inter Two" && isLeap) ? ' (leap +2)' : '';
-  elements.monthDisplay.textContent = month.name + leapNote;
-  elements.dayRange.textContent = `Day ${selectedDayInMonth} of ${month.days}`;
+  elements.valenMonthDisplay.textContent = month.name + leapNote;
+  elements.valenDayRange.textContent = `Day ${selectedDayInMonth} of ${month.days}`;
   
   if (month.type === 'lentar') {
-    renderLentarGrid(month, selectedDayInMonth, elements.container);
+    renderLentarGrid(month, selectedDayInMonth, elements.valenCalendarContainer);
   } else {
-    renderInterGrid(month, selectedDayInMonth, year, elements.container);
+    renderInterGrid(month, selectedDayInMonth, valenYear, elements.valenCalendarContainer);
   }
 }
 
@@ -68,11 +66,11 @@ function renderLentarGrid(month, selectedDayInMonth, container) {
   let html = `<div class="valen-grid lentar-grid">`;
   html += `<div class="grid-label"></div>`;
   for (let i = 1; i <= 9; i++) {
-    html += `<div class="weekday-header">${i}</div>`;
+    html += `<div class="weekday-header valen">${i}</div>`;
   }
   
   // Free days 1-3
-  html += `<div class="grid-label">Free</div>`;
+  html += `<div class="grid-label free-label">Free</div>`;
   for (let i = 1; i <= 9; i++) {
     if (i <= 3) {
       const d = i;
@@ -94,7 +92,7 @@ function renderLentarGrid(month, selectedDayInMonth, container) {
   }
   
   // Free days 148-150
-  html += `<div class="grid-label">Free</div>`;
+  html += `<div class="grid-label free-label">Free</div>`;
   for (let i = 1; i <= 9; i++) {
     if (i <= 3) {
       const d = 147 + i;
@@ -116,7 +114,7 @@ function renderInterGrid(month, selectedDayInMonth, year, container) {
   for (let d = 1; d <= month.days; d++) {
     const selected = (d === selectedDayInMonth);
     const extraClass = (month.name === "Inter Two" && isLeap && d > 12) ? 'leap-day' : '';
-    html += `<div class="cal-cell ${extraClass} ${selected ? 'highlight' : ''}" data-vday="${month.startDay + d - 1}">${d}</div>`;
+    html += `<div class="cal-cell inter-cell ${extraClass} ${selected ? 'highlight' : ''}" data-vday="${month.startDay + d - 1}">${d}</div>`;
   }
   
   html += `</div>`;
