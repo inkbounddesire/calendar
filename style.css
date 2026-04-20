@@ -139,15 +139,18 @@ h1 span {
 }
 
 .calendar-preview {
-    margin: 20px 0 10px;
+    margin: 10px 0 10px;
 }
 
 .calendar-grid {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
     gap: 5px;
     text-align: center;
     margin-top: 8px;
+}
+
+#earthCalendarGrid {
+    grid-template-columns: repeat(7, 1fr);
 }
 
 .weekday-header {
@@ -196,6 +199,19 @@ h1 span {
     color: #3f5532;
 }
 
+.valen-month-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 16px 0 6px;
+}
+
+.valen-month-name {
+    font-size: 1.2rem;
+    font-weight: 400;
+    color: #4a6740;
+}
+
 .nav-btn {
     background: #f0eadc;
     border: 1px solid #b7aa8f;
@@ -210,6 +226,12 @@ h1 span {
     cursor: pointer;
     transition: 0.15s;
     box-shadow: 0 2px 4px #ddd2be;
+}
+
+.nav-btn.small {
+    font-size: 1.3rem;
+    width: 34px;
+    height: 34px;
 }
 
 .nav-btn:hover {
@@ -262,9 +284,4 @@ button:hover {
     font-size: 0.85rem;
     text-align: right;
     color: #6f765b;
-}
-
-#valenDayGrid {
-    grid-template-columns: repeat(20, 1fr);
-    gap: 3px;
 }
