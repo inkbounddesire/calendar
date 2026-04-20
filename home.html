@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🌿 Valen ⇄ Earth · Calendar with Months</title>
+  <title>🌿 Valen ⇄ Earth · 9-Day Weeks</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="converter-card">
-  <h1>🌍 Valen · Earth <span>486d · 20h47m</span></h1>
+  <h1>🌍 Valen · Earth <span>486d · 20h47m · 9d week</span></h1>
   <div class="subtitle">↻ side‑by‑side calendar · anchor: 23 Sept 2264 = 754 Valen day 2</div>
   <div class="anchor-note">
     ⚓ FIXED ANCHOR · Earth: <strong>23 September 2264</strong>  ⇢  Valen: <strong>Year 754, Day 2</strong> (Valen day: 20h 47m)
@@ -50,7 +50,7 @@
         <input type="number" id="valenDay" value="2" min="1" max="486" step="1" style="width:90px;">
       </div>
       <div style="margin: 10px 0 8px; font-size:0.95rem; background:#e5ddca; padding:6px 14px; border-radius:40px; color:#263f1e;">
-        ⏱️ Day length: <strong>20h 47m</strong> · 1 Valen year = 486 days
+        ⏱️ Day length: <strong>20h 47m</strong> · 1 Valen year = 486 days · 9-day weeks in Len'tar
       </div>
       
       <!-- Valen month navigation -->
@@ -60,7 +60,26 @@
         <button class="nav-btn small" id="valenNextMonth">→</button>
       </div>
       <div style="margin: 4px 0 4px; font-size:0.8rem; color:#6a715a;">
-        <span id="valenDayRange">Day 1 of 150</span> · click any day to select
+        <span id="valenDayRange">Day 1 of 150</span> · <span id="valenWeekInfo"></span>
+      </div>
+      
+      <!-- Weekday headers for Len'tar (shown conditionally) -->
+      <div id="valenWeekHeaders" class="valen-week-headers" style="display: none;">
+        <div class="weekday-header valen">Free</div>
+        <div class="weekday-header valen">Free</div>
+        <div class="weekday-header valen">Free</div>
+        <div class="weekday-header valen">1st</div>
+        <div class="weekday-header valen">2nd</div>
+        <div class="weekday-header valen">3rd</div>
+        <div class="weekday-header valen">4th</div>
+        <div class="weekday-header valen">5th</div>
+        <div class="weekday-header valen">6th</div>
+        <div class="weekday-header valen">7th</div>
+        <div class="weekday-header valen">8th</div>
+        <div class="weekday-header valen">9th</div>
+        <div class="weekday-header valen">Free</div>
+        <div class="weekday-header valen">Free</div>
+        <div class="weekday-header valen">Free</div>
       </div>
       
       <div class="calendar-preview">
@@ -68,6 +87,13 @@
           <!-- dynamic days for current Valen month -->
         </div>
       </div>
+      
+      <!-- Legend for Len'tar weeks -->
+      <div id="weekLegend" style="margin-top: 12px; font-size: 0.8rem; display: none;">
+        <span style="display: inline-block; width: 12px; height: 12px; background: #d4c4a0; border-radius: 4px; margin-right: 4px;"></span> Free days (1-3, 148-150) 
+        <span style="display: inline-block; width: 12px; height: 12px; background: #c9af7a; border-radius: 4px; margin: 0 4px 0 12px;"></span> Week days (4-147, 16 weeks of 9 days)
+      </div>
+      
       <div style="margin-top: 20px; text-align: left;">
         <button id="valenToEarthBtn">← Convert to Earth</button>
       </div>
@@ -77,12 +103,12 @@
   <!-- CONVERSION RESULT -->
   <div class="conversion-result" id="resultDisplay">
     <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
-      <span id="resultMainText">📌 23 September 2264  ⇢  Valen 754 · Day 2 (First Len'tar day 2)</span>
+      <span id="resultMainText">📌 23 September 2264  ⇢  Valen 754 · First Len'tar day 2 (day 2 of year)</span>
     </div>
     <div id="resultDetails" class="valen-meta"></div>
   </div>
   <div class="footer-note">
-    ⚡ Valen months: First Len'tar (150d) · Inter One (12d) · Second Len'tar (150d) · Inter Two (12d) · Third Len'tar (150d) · Inter Three (12d)
+    ⚡ Len'tar: days 1-3 free · 16 weeks of 9 days (144d) · days 148-150 free · Inter months: no weeks
   </div>
 </div>
 
@@ -92,23 +118,26 @@
 
     // ---------- CONSTANTS & ANCHOR ----------
     const VALEN_DAYS_PER_YEAR = 486;
-    const VALEN_DAY_HOURS = 20 + 47/60;  // 20.78333...
+    const VALEN_DAY_HOURS = 20 + 47/60;
     const EARTH_DAY_HOURS = 24;
 
     // Valen months definition
     const VALEN_MONTHS = [
-      { name: "First Len'tar", days: 150, startDay: 1 },
-      { name: "Inter One", days: 12, startDay: 151 },
-      { name: "Second Len'tar", days: 150, startDay: 163 },
-      { name: "Inter Two", days: 12, startDay: 313 },
-      { name: "Third Len'tar", days: 150, startDay: 325 },
-      { name: "Inter Three", days: 12, startDay: 475 }
+      { name: "First Len'tar", days: 150, startDay: 1, type: 'lentar' },
+      { name: "Inter One", days: 12, startDay: 151, type: 'inter' },
+      { name: "Second Len'tar", days: 150, startDay: 163, type: 'lentar' },
+      { name: "Inter Two", days: 12, startDay: 313, type: 'inter' },
+      { name: "Third Len'tar", days: 150, startDay: 325, type: 'lentar' },
+      { name: "Inter Three", days: 12, startDay: 475, type: 'inter' }
     ];
+
+    // Weekday names for 9-day week
+    const WEEKDAY_NAMES = ["First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth"];
 
     // Anchor: Earth 2264-09-23 00:00 UTC
     const ANCHOR_EARTH = new Date(Date.UTC(2264, 8, 23, 0, 0, 0, 0));
     const ANCHOR_VALEN_YEAR = 754;
-    const ANCHOR_VALEN_DAY = 2;   // 1-indexed day of year
+    const ANCHOR_VALEN_DAY = 2;
 
     const epochEarth = new Date(Date.UTC(1970, 0, 1, 0, 0, 0, 0));
     const MS_PER_EARTH_DAY = EARTH_DAY_HOURS * 3600 * 1000;
@@ -116,6 +145,25 @@
     const anchorEarthDaysSinceEpoch = (ANCHOR_EARTH.getTime() - epochEarth.getTime()) / MS_PER_EARTH_DAY;
     const anchorValenTotalDays = (ANCHOR_VALEN_YEAR - 1) * VALEN_DAYS_PER_YEAR + (ANCHOR_VALEN_DAY - 1);
     const VALEN_DAY_EARTH_DAYS = VALEN_DAY_HOURS / EARTH_DAY_HOURS;
+
+    // Helper: get week info for a day within a Len'tar month
+    function getLentarWeekInfo(dayInMonth) {
+      if (dayInMonth <= 3) {
+        return { type: 'free', weekNum: null, weekday: null, weekdayName: 'Free day' };
+      } else if (dayInMonth >= 148) {
+        return { type: 'free', weekNum: null, weekday: null, weekdayName: 'Free day' };
+      } else {
+        const dayInWeekPeriod = dayInMonth - 3; // 1 to 144
+        const weekNum = Math.floor((dayInWeekPeriod - 1) / 9) + 1; // 1 to 16
+        const weekdayIndex = (dayInWeekPeriod - 1) % 9; // 0 to 8
+        return { 
+          type: 'week', 
+          weekNum: weekNum, 
+          weekday: weekdayIndex + 1,
+          weekdayName: WEEKDAY_NAMES[weekdayIndex]
+        };
+      }
+    }
 
     function earthDaysFromDate(year, month, day) {
       const d = new Date(Date.UTC(year, month, day, 0, 0, 0, 0));
@@ -146,7 +194,6 @@
       return new Date(ms);
     }
 
-    // Get Valen month info from day of year (1-486)
     function getValenMonthFromDay(dayOfYear) {
       for (let i = 0; i < VALEN_MONTHS.length; i++) {
         const month = VALEN_MONTHS[i];
@@ -156,6 +203,7 @@
             name: month.name,
             days: month.days,
             startDay: month.startDay,
+            type: month.type,
             dayInMonth: dayOfYear - month.startDay + 1
           };
         }
@@ -165,12 +213,12 @@
 
     // ---------- UI STATE ----------
     let currentEarthYear = 2264;
-    let currentEarthMonth = 8; // September
+    let currentEarthMonth = 8;
     let currentEarthDay = 23;
     
     let currentValenYear = 754;
-    let currentValenDayOfYear = 2;  // 1-486
-    let currentValenMonthIndex = 0; // 0 = First Len'tar
+    let currentValenDayOfYear = 2;
+    let currentValenMonthIndex = 0;
 
     const earthYearInput = document.getElementById('earthYear');
     const earthMonthSelect = document.getElementById('earthMonth');
@@ -182,6 +230,9 @@
     const valenDayGrid = document.getElementById('valenDayGrid');
     const valenMonthDisplay = document.getElementById('valenMonthDisplay');
     const valenDayRange = document.getElementById('valenDayRange');
+    const valenWeekInfo = document.getElementById('valenWeekInfo');
+    const valenWeekHeaders = document.getElementById('valenWeekHeaders');
+    const weekLegend = document.getElementById('weekLegend');
     const resultMain = document.getElementById('resultMainText');
     const resultDetails = document.getElementById('resultDetails');
 
@@ -206,7 +257,6 @@
     }
     populateMonthSelect();
 
-    // Update current Valen month index based on day of year
     function updateValenMonthFromDay() {
       const monthInfo = getValenMonthFromDay(currentValenDayOfYear);
       if (monthInfo) {
@@ -218,7 +268,7 @@
       const year = currentEarthYear;
       const month = currentEarthMonth;
       const firstDay = new Date(Date.UTC(year, month, 1, 0, 0, 0));
-      let startOffset = (firstDay.getUTCDay() + 6) % 7; // Monday=0
+      let startOffset = (firstDay.getUTCDay() + 6) % 7;
       const daysInMonth = new Date(Date.UTC(year, month+1, 0)).getUTCDate();
       
       earthMonthDisplay.textContent = `${monthNames[month]} ${year}`;
@@ -270,16 +320,39 @@
       const daysInMonth = month.days;
       const monthInfo = getValenMonthFromDay(currentValenDayOfYear);
       const dayInMonth = monthInfo ? monthInfo.dayInMonth : 1;
+      const isLentar = month.type === 'lentar';
       
       valenMonthDisplay.textContent = month.name;
+      
+      // Show/hide week headers and legend
+      if (isLentar) {
+        valenWeekHeaders.style.display = 'grid';
+        weekLegend.style.display = 'block';
+      } else {
+        valenWeekHeaders.style.display = 'none';
+        weekLegend.style.display = 'none';
+      }
+      
+      // Update week info for selected day
+      if (isLentar && monthInfo) {
+        const weekInfo = getLentarWeekInfo(dayInMonth);
+        if (weekInfo.type === 'free') {
+          valenWeekInfo.textContent = `Free day`;
+        } else {
+          valenWeekInfo.textContent = `Week ${weekInfo.weekNum}, ${weekInfo.weekdayName} day`;
+        }
+      } else {
+        valenWeekInfo.textContent = '';
+      }
+      
       valenDayRange.textContent = `Day ${dayInMonth} of ${daysInMonth}`;
       
-      // Determine grid columns: for 150 days use 15 cols, for 12 days use 6
+      // Determine grid columns
       let cols;
-      if (daysInMonth === 150) {
-        cols = 15;
+      if (isLentar) {
+        cols = 15; // 15 columns for Len'tar
       } else {
-        cols = 6; // for 12-day inter months
+        cols = 6; // 6 columns for Inter
       }
       
       const rows = Math.ceil(daysInMonth / cols);
@@ -289,11 +362,33 @@
         for (let c = 0; c < cols; c++) {
           const index = r * cols + c;
           if (index < daysInMonth) {
-            const dayNumInMonth = index + 1;  // Display 1-based within month
+            const dayNumInMonth = index + 1;
             const dayOfYear = month.startDay + index;
             const isSelected = (dayOfYear === currentValenDayOfYear);
-            const highlight = isSelected ? 'highlight' : '';
-            html += `<div class="cal-cell ${highlight}" data-valenday="${dayOfYear}">${dayNumInMonth}</div>`;
+            
+            let cellClass = 'cal-cell';
+            if (isSelected) cellClass += ' highlight';
+            
+            // Add free-day class for Len'tar free days
+            if (isLentar) {
+              const weekInfo = getLentarWeekInfo(dayNumInMonth);
+              if (weekInfo.type === 'free') {
+                cellClass += ' free-day';
+              }
+            }
+            
+            // Tooltip with week info
+            let tooltip = '';
+            if (isLentar) {
+              const weekInfo = getLentarWeekInfo(dayNumInMonth);
+              if (weekInfo.type === 'free') {
+                tooltip = 'Free day';
+              } else {
+                tooltip = `Week ${weekInfo.weekNum}, ${weekInfo.weekdayName} day`;
+              }
+            }
+            
+            html += `<div class="${cellClass}" data-valenday="${dayOfYear}" title="${tooltip}">${dayNumInMonth}</div>`;
           } else {
             html += `<div class="cal-cell other-month" style="visibility: hidden;"></div>`;
           }
@@ -361,12 +456,24 @@
       const monthInfo = getValenMonthFromDay(currentValenDayOfYear);
       const monthName = monthInfo ? monthInfo.name : '';
       const dayInMonth = monthInfo ? monthInfo.dayInMonth : currentValenDayOfYear;
-      const valenStr = `Valen ${currentValenYear} · ${monthName} day ${dayInMonth} (day ${currentValenDayOfYear} of year)`;
+      
+      let weekDisplay = '';
+      if (monthInfo && monthInfo.type === 'lentar') {
+        const weekInfo = getLentarWeekInfo(dayInMonth);
+        if (weekInfo.type === 'free') {
+          weekDisplay = ' (Free day)';
+        } else {
+          weekDisplay = ` (Week ${weekInfo.weekNum}, ${weekInfo.weekdayName} day)`;
+        }
+      }
+      
+      const valenStr = `Valen ${currentValenYear} · ${monthName} day ${dayInMonth}${weekDisplay} (day ${currentValenDayOfYear} of year)`;
       resultMain.innerHTML = `🌍 ${earthDateStr}  ⇢  🪐 ${valenStr}`;
+      
       const earthDays = earthDaysFromDate(currentEarthYear, currentEarthMonth, currentEarthDay);
       const valenTotal = earthDaysToValenTotal(earthDays);
       const precise = valenTotal - (currentValenYear-1)*VALEN_DAYS_PER_YEAR;
-      resultDetails.innerHTML = `📐 precise Valen day: ${precise.toFixed(4)} · 1 Valen day = ${VALEN_DAY_HOURS.toFixed(3)}h · anchor: 23 Sep 2264 = 754.2`;
+      resultDetails.innerHTML = `📐 precise Valen day: ${precise.toFixed(4)} · 1 Valen day = ${VALEN_DAY_HOURS.toFixed(3)}h`;
     }
 
     // Event wiring
@@ -411,12 +518,10 @@
 
     earthToValenBtn.addEventListener('click', updateFromEarth);
     
-    // Valen month navigation
     valenPrevMonth.addEventListener('click', () => {
       if (currentValenMonthIndex > 0) {
         currentValenMonthIndex--;
       } else {
-        // Wrap to previous year
         currentValenYear--;
         currentValenMonthIndex = VALEN_MONTHS.length - 1;
       }
@@ -431,7 +536,6 @@
       if (currentValenMonthIndex < VALEN_MONTHS.length - 1) {
         currentValenMonthIndex++;
       } else {
-        // Wrap to next year
         currentValenYear++;
         currentValenMonthIndex = 0;
       }
