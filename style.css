@@ -285,3 +285,38 @@ button:hover {
     text-align: right;
     color: #6f765b;
 }
+
+/* Add to existing style.css */
+
+.valen-week-headers {
+    display: grid;
+    grid-template-columns: repeat(15, 1fr);
+    gap: 5px;
+    margin: 8px 0 4px;
+    text-align: center;
+}
+
+.weekday-header.valen {
+    font-size: 0.7rem;
+    padding: 2px 0;
+    color: #6b5d3e;
+    font-weight: 500;
+    text-transform: none;
+}
+
+.cal-cell.free-day {
+    background: #d4c4a0;
+    border-color: #b8a67c;
+    color: #3a2e1a;
+}
+
+.cal-cell.free-day.highlight {
+    background: #b89b4a;
+    border-color: #8f7a3e;
+}
+
+#weekLegend {
+    padding: 8px 0;
+    color: #5a6348;
+    border-top: 1px dashed #c4b99e;
+}
