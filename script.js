@@ -98,8 +98,6 @@
 
   const earthPrev = document.getElementById('earthPrevMonth');
   const earthNext = document.getElementById('earthNextMonth');
-  const earthToValenBtn = document.getElementById('earthToValenBtn');
-  const valenToEarthBtn = document.getElementById('valenToEarthBtn');
   const valenPrevMonth = document.getElementById('valenPrevMonth');
   const valenNextMonth = document.getElementById('valenNextMonth');
 
@@ -370,8 +368,6 @@
     currentEarthDay = d;
     updateEarthUI(); updateFromEarth();
   });
-
-  earthToValenBtn.addEventListener('click', updateFromEarth);
   
   valenPrevMonth.addEventListener('click', () => {
     if (currentValenMonthIndex > 0) {
@@ -414,8 +410,6 @@
     currentValenDayOfYear = d;
     updateValenUI(); updateFromValen();
   });
-  
-  valenToEarthBtn.addEventListener('click', updateFromValen);
 
   function initialize() {
     currentEarthYear = 2264; currentEarthMonth = 8; currentEarthDay = 23;
