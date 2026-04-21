@@ -249,3 +249,17 @@ h1 {
     border-color: #b8a67c;
     font-style: italic;
 }
+.cal-cell {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 30px;
+    min-height: 30px;
+}
+
+.valen-grid .cal-cell,
+.inter-grid .cal-cell {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
