@@ -304,16 +304,21 @@
 
   // Constants
   const VALEN_BASE_DAYS = 486;
-  const VALEN_DAY_HOURS = 20 + 47/60;
+  const VALEN_DAY_HOURS = 20 + 47/60;  // 20.78333... hours
   const EARTH_DAY_HOURS = 24;
   const VALEN_LEAP_CYCLE = 11;
   const VALEN_LEAP_REF = 748;
   
-  const ANCHOR_EARTH = new Date(Date.UTC(2264, 8, 23));
+  // Anchor: Earth 2264-09-23 00:00 UTC = Valen 754 day 2 00:00
+  const ANCHOR_EARTH = new Date(Date.UTC(2264, 8, 23, 0, 0, 0));
   const ANCHOR_VALEN_YEAR = 754;
   const ANCHOR_VALEN_DAY = 2;
+  const ANCHOR_VALEN_TIME = 0; // 0.0 = start of day
+  
   const EPOCH = new Date(Date.UTC(1970, 0, 1));
-  const MS_PER_DAY = 86400000;
+  const MS_PER_HOUR = 3600000;
+  const MS_PER_EARTH_DAY = EARTH_DAY_HOURS * MS_PER_HOUR;
+  const MS_PER_VALEN_DAY = VALEN_DAY_HOURS * MS_PER_HOUR;
   
   const EARTH_MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   
@@ -367,38 +372,83 @@
     return days[month];
   }
   
-  function earthToDays(y, m, d) {
-    return (new Date(Date.UTC(y, m, d)) - EPOCH) / MS_PER_DAY;
+  // Convert Earth date (at 00:00 UTC) to milliseconds since epoch
+  function earthToMs(y, m, d) {
+    return new Date(Date.UTC(y, m, d, 0, 0, 0)).getTime();
   }
   
-  const anchorEarthDays = earthToDays(2264, 8, 23);
-  const anchorValenTotal = getValenTotalBeforeYear(754) + 1;
-  const VALEN_DAY_EARTH_DAYS = VALEN_DAY_HOURS / 24;
+  // Convert milliseconds to Earth date
+  function msToEarth(ms) {
+    const date = new Date(ms);
+    return {
+      year: date.getUTCFullYear(),
+      month: date.getUTCMonth(),
+      day: date.getUTCDate(),
+      hour: date.getUTCHours(),
+      minute: date.getUTCMinutes()
+    };
+  }
   
+  // Anchor in milliseconds
+  const anchorEarthMs = earthToMs(2264, 8, 23);
+  
+  // Convert Earth date to Valen date with time
   function earthToValen(y, m, d) {
-    const earthDays = earthToDays(y, m, d);
-    const valenTotal = anchorValenTotal + (earthDays - anchorEarthDays) / VALEN_DAY_EARTH_DAYS;
-    let remaining = Math.floor(valenTotal);
+    const earthMs = earthToMs(y, m, d);
+    const msDiff = earthMs - anchorEarthMs;
+    
+    // Convert to Valen days (floating point)
+    const valenDaysDiff = msDiff / MS_PER_VALEN_DAY;
+    
+    // Total Valen days since year 1 day 1 (0.0 = start of day 1)
+    let valenTotal = (getValenTotalBeforeYear(ANCHOR_VALEN_YEAR) + (ANCHOR_VALEN_DAY - 1)) + valenDaysDiff;
+    
+    // Extract year and day
+    let remaining = valenTotal;
     let year = 1;
     while (true) {
       const daysInYear = getValenDaysInYear(year);
-      if (remaining < daysInYear) return { year, day: remaining + 1 };
+      if (remaining < daysInYear) {
+        const day = Math.floor(remaining) + 1;
+        const timeOfDay = remaining - Math.floor(remaining);
+        return { year, day, timeOfDay };
+      }
       remaining -= daysInYear;
       year++;
     }
   }
   
-  function valenToEarth(year, dayOfYear) {
-    const total = getValenTotalBeforeYear(year) + (dayOfYear - 1);
-    const earthDays = anchorEarthDays + (total - anchorValenTotal) * VALEN_DAY_EARTH_DAYS;
-    const date = new Date(EPOCH.getTime() + earthDays * MS_PER_DAY);
-    return { year: date.getUTCFullYear(), month: date.getUTCMonth(), day: date.getUTCDate() };
+  // Convert Valen date to Earth date
+  function valenToEarth(year, day) {
+    // We always use 00:00 Valen time (start of day)
+    const valenTotal = getValenTotalBeforeYear(year) + (day - 1);
+    const valenDiff = valenTotal - (getValenTotalBeforeYear(ANCHOR_VALEN_YEAR) + (ANCHOR_VALEN_DAY - 1));
+    
+    // Convert to Earth milliseconds
+    const msDiff = valenDiff * MS_PER_VALEN_DAY;
+    const earthMs = anchorEarthMs + msDiff;
+    
+    // Round to nearest Earth day start (00:00 UTC)
+    // This ensures we map to the closest calendar day
+    const roundedMs = Math.round(earthMs / MS_PER_EARTH_DAY) * MS_PER_EARTH_DAY;
+    
+    const earth = msToEarth(roundedMs);
+    return { year: earth.year, month: earth.month, day: earth.day };
+  }
+  
+  // Format time of day
+  function formatTimeOfDay(timeOfDay) {
+    const totalMinutes = timeOfDay * VALEN_DAY_HOURS * 60;
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = Math.floor(totalMinutes % 60);
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
   }
 
   // State
   let state = {
     earthYear: 2264, earthMonth: 8, earthDay: 23,
-    valenYear: 754, valenDay: 2, valenMonthIdx: 0
+    valenYear: 754, valenDay: 2, valenMonthIdx: 0,
+    valenTimeOfDay: 0
   };
 
   // DOM elements
@@ -456,7 +506,7 @@
   }
 
   function renderValen() {
-    const { valenYear, valenDay } = state;
+    const { valenYear, valenDay, valenTimeOfDay } = state;
     const months = getValenMonths(valenYear);
     const info = getValenMonthInfo(valenYear, valenDay);
     const month = months[info.index];
@@ -467,7 +517,9 @@
     const isLeap = isValenLeap(valenYear);
     const leapNote = (month.name === "Inter Two" && isLeap) ? ' (leap +2)' : '';
     el.valenMonthDisp.textContent = month.name + leapNote;
-    el.valenDayRange.textContent = `Day ${selDay} of ${month.days}`;
+    
+    const timeStr = formatTimeOfDay(valenTimeOfDay);
+    el.valenDayRange.textContent = `Day ${selDay} of ${month.days} · ${timeStr}`;
     
     if (month.type === 'lentar') {
       let html = `<div class="valen-grid lentar-grid">`;
@@ -516,6 +568,7 @@
     document.querySelectorAll('[data-vday]').forEach(c => {
       c.addEventListener('click', () => {
         state.valenDay = parseInt(c.dataset.vday);
+        state.valenTimeOfDay = 0; // Clicking a day sets to start of day
         updateFromValen();
       });
     });
@@ -525,6 +578,7 @@
     const conv = earthToValen(state.earthYear, state.earthMonth, state.earthDay);
     state.valenYear = conv.year;
     state.valenDay = conv.day;
+    state.valenTimeOfDay = conv.timeOfDay;
     updateUI();
   }
 
@@ -547,8 +601,13 @@
     renderValen();
     
     const info = getValenMonthInfo(state.valenYear, state.valenDay);
-    el.resultMain.innerHTML = `📌 ${state.earthDay} ${EARTH_MONTHS[state.earthMonth]} ${state.earthYear} ⇢ Valen ${state.valenYear} · ${info.name} day ${info.dayInMonth}`;
-    el.resultDetails.innerHTML = `📐 1 Valen day = ${VALEN_DAY_HOURS.toFixed(3)}h · Year: ${getValenDaysInYear(state.valenYear)} days`;
+    const timeStr = formatTimeOfDay(state.valenTimeOfDay);
+    const earthTimeStr = `00:00`; // Earth is always at 00:00 when selected
+    
+    el.resultMain.innerHTML = `📌 ${state.earthDay} ${EARTH_MONTHS[state.earthMonth]} ${state.earthYear} ${earthTimeStr} ⇢ Valen ${state.valenYear} · ${info.name} day ${info.dayInMonth} ${timeStr}`;
+    
+    const hourDiff = (state.valenTimeOfDay * VALEN_DAY_HOURS).toFixed(1);
+    el.resultDetails.innerHTML = `📐 1 Valen day = ${VALEN_DAY_HOURS.toFixed(3)}h · Offset: +${hourDiff}h into Valen day`;
   }
 
   // Event listeners
@@ -594,6 +653,7 @@
     if (state.valenMonthIdx > 0) state.valenMonthIdx--;
     else { state.valenYear--; state.valenMonthIdx = getValenMonths(state.valenYear).length - 1; }
     state.valenDay = getValenMonths(state.valenYear)[state.valenMonthIdx].start;
+    state.valenTimeOfDay = 0;
     updateFromValen();
   });
 
@@ -602,6 +662,7 @@
     if (state.valenMonthIdx < months.length - 1) state.valenMonthIdx++;
     else { state.valenYear++; state.valenMonthIdx = 0; }
     state.valenDay = getValenMonths(state.valenYear)[state.valenMonthIdx].start;
+    state.valenTimeOfDay = 0;
     updateFromValen();
   });
 
@@ -609,6 +670,7 @@
     state.valenYear = parseInt(el.valenYear.value) || 754;
     const max = getValenDaysInYear(state.valenYear);
     if (state.valenDay > max) state.valenDay = max;
+    state.valenTimeOfDay = 0;
     updateFromValen();
   });
 
@@ -616,6 +678,7 @@
     state.valenDay = parseInt(el.valenDay.value) || 1;
     const max = getValenDaysInYear(state.valenYear);
     if (state.valenDay > max) state.valenDay = max;
+    state.valenTimeOfDay = 0;
     updateFromValen();
   });
 
