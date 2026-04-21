@@ -4,14 +4,239 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🌿 Minbar ⇄ Earth</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, 'Segoe UI', 'Roboto', sans-serif;
+    }
+    body {
+      background: #f5f3eb;
+      min-height: 100vh;
+      margin: 0;
+      padding: 24px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #1e2e1e;
+    }
+    .converter-card {
+      max-width: 1400px;
+      width: 100%;
+      background: #fefcf6;
+      border: 1px solid #c0bba8;
+      border-radius: 36px;
+      padding: 28px 30px 36px;
+      box-shadow: 0 12px 28px -8px rgba(40, 30, 10, 0.12);
+    }
+    h1 {
+      margin: 0 0 6px 0;
+      font-weight: 400;
+      font-size: 2.2rem;
+      color: #2c422c;
+    }
+    .subtitle {
+      margin-bottom: 20px;
+      font-style: italic;
+      color: #5e6e4e;
+      border-bottom: 1px dashed #b9b094;
+      padding-bottom: 10px;
+    }
+    .anchor-note {
+      background: #e7e1cf;
+      padding: 10px 22px;
+      border-radius: 48px;
+      text-align: center;
+      border-left: 6px solid #9f8345;
+      margin-bottom: 24px;
+      color: #23311e;
+    }
+    .two-panels {
+      display: flex;
+      gap: 20px;
+    }
+    .panel {
+      flex: 1;
+      background: #faf8f0;
+      border-radius: 28px;
+      padding: 22px 20px;
+      border: 1px solid #d6cdb2;
+    }
+    .panel h2 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      font-weight: 350;
+      font-size: 1.8rem;
+      color: #2e462e;
+      border-bottom: 1px solid #dbd2bc;
+      padding-bottom: 8px;
+    }
+    .input-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px 12px;
+      margin-bottom: 22px;
+    }
+    .input-group label {
+      min-width: 40px;
+      color: #3f5532;
+    }
+    .input-group input,
+    .input-group select {
+      background: #fffdf9;
+      border: 1px solid #bcb09a;
+      border-radius: 30px;
+      padding: 8px 14px;
+      color: #1c2b14;
+      font-size: 1rem;
+    }
+    .flex-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      align-items: center;
+    }
+    .calendar-grid {
+      display: grid;
+      gap: 5px;
+      text-align: center;
+      margin-top: 8px;
+    }
+    .seven-cols {
+      grid-template-columns: repeat(7, 1fr);
+    }
+    .weekday-header {
+      font-weight: 600;
+      color: #7d6e4b;
+      padding: 4px 0;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+    }
+    .cal-cell {
+      background: #f4efe2;
+      border-radius: 16px;
+      padding: 8px 4px;
+      font-size: 0.9rem;
+      border: 1px solid #cec6ae;
+      color: #2e3d24;
+      cursor: pointer;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 36px;
+    }
+    .cal-cell.highlight {
+      background: #c9af7a;
+      color: #13200e;
+      font-weight: bold;
+      border-color: #a5833e;
+    }
+    .cal-cell.other-month {
+      opacity: 0.3;
+    }
+    .cal-cell.free-day {
+      background: #e8dcc8;
+    }
+    .cal-cell.empty-cell {
+      background: transparent;
+      border: 1px dashed #d4cbb8;
+      cursor: default;
+      opacity: 0.5;
+    }
+    .cal-cell.leap-day {
+      background: #d4c4a0;
+      border-color: #b8a67c;
+    }
+    .month-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 4px 0 8px;
+    }
+    .month-name {
+      font-size: 1.3rem;
+      color: #3f5532;
+    }
+    .valen-month-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 16px 0 6px;
+    }
+    .valen-month-name {
+      font-size: 1.2rem;
+      color: #4a6740;
+    }
+    .nav-btn {
+      background: #f0eadc;
+      border: 1px solid #b7aa8f;
+      color: #3b4f2e;
+      font-size: 1.6rem;
+      width: 40px;
+      height: 40px;
+      border-radius: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .nav-btn.small {
+      font-size: 1.3rem;
+      width: 34px;
+      height: 34px;
+    }
+    .nav-btn:hover {
+      background: #dbcfb2;
+    }
+    .valen-calendar-wrapper {
+      margin-top: 10px;
+    }
+    .valen-grid {
+      display: grid;
+      gap: 4px;
+    }
+    .lentar-grid {
+      grid-template-columns: 55px repeat(9, 1fr);
+    }
+    .grid-label {
+      font-size: 0.75rem;
+      color: #6a715a;
+      padding: 6px 2px;
+      text-align: right;
+    }
+    .inter-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 6px;
+    }
+    .conversion-result {
+      margin-top: 30px;
+      background: #eae3d2;
+      border-radius: 28px;
+      padding: 18px 26px;
+      border-left: 10px solid #a5833e;
+      font-size: 1.2rem;
+      color: #1e351a;
+    }
+    .valen-meta {
+      font-size: 0.9rem;
+      opacity: 0.8;
+      margin-top: 8px;
+      color: #4d5e3c;
+    }
+    .weekday-header.valen {
+      text-transform: none;
+      font-size: 0.7rem;
+    }
+  </style>
 </head>
 <body>
 <div class="converter-card">
   <h1>🌍 Minbar · Earth</h1>
   <div class="subtitle">↻ side‑by‑side calendar</div>
   <div class="anchor-note">
-    ⚓ FIXED ANCHOR · Earth: <strong>23 September 2264</strong> ⇢ Valen: <strong>Year 754, Day 2</strong> (Valen day: 20h 47m)
+    ⚓ FIXED ANCHOR · Earth: <strong>23 September 2264</strong> ⇢ Valen: <strong>Year 754, Day 2</strong>
   </div>
 
   <div class="two-panels">
@@ -65,12 +290,338 @@
     </div>
   </div>
 
-  
+  <div class="conversion-result" id="resultDisplay">
+    <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+      <span id="resultMainText">📌 23 September 2264 ⇢ Valen 754 · First Len'tar day 2</span>
+    </div>
+    <div id="resultDetails" class="valen-meta"></div>
+  </div>
 </div>
 
- <script src="js/constants.js"></script>
-  <script src="js/calendar-utils.js"></script>
-  <script src="js/ui-render.js"></script>
-  <script src="js/app.js"></script>
+<script>
+(function() {
+  "use strict";
+
+  // Constants
+  const VALEN_BASE_DAYS = 486;
+  const VALEN_DAY_HOURS = 20 + 47/60;
+  const EARTH_DAY_HOURS = 24;
+  const VALEN_LEAP_CYCLE = 11;
+  const VALEN_LEAP_REF = 748;
+  
+  const ANCHOR_EARTH = new Date(Date.UTC(2264, 8, 23));
+  const ANCHOR_VALEN_YEAR = 754;
+  const ANCHOR_VALEN_DAY = 2;
+  const EPOCH = new Date(Date.UTC(1970, 0, 1));
+  const MS_PER_DAY = 86400000;
+  
+  const EARTH_MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  
+  // Helper functions
+  function isValenLeap(year) {
+    return (year - VALEN_LEAP_REF) % VALEN_LEAP_CYCLE === 0;
+  }
+  
+  function getValenDaysInYear(year) {
+    return isValenLeap(year) ? 488 : 486;
+  }
+  
+  function getValenMonths(year) {
+    const isLeap = isValenLeap(year);
+    return [
+      { name: "First Len'tar", days: 150, start: 1, type: 'lentar' },
+      { name: "Inter One", days: 12, start: 151, type: 'inter' },
+      { name: "Second Len'tar", days: 150, start: 163, type: 'lentar' },
+      { name: "Inter Two", days: isLeap ? 14 : 12, start: 313, type: 'inter' },
+      { name: "Third Len'tar", days: 150, start: isLeap ? 327 : 325, type: 'lentar' },
+      { name: "Inter Three", days: 12, start: isLeap ? 477 : 475, type: 'inter' }
+    ];
+  }
+  
+  function getValenTotalBeforeYear(year) {
+    let days = 0;
+    for (let y = 1; y < year; y++) days += getValenDaysInYear(y);
+    return days;
+  }
+  
+  function getValenMonthInfo(year, dayOfYear) {
+    const months = getValenMonths(year);
+    for (let i = 0; i < months.length; i++) {
+      const m = months[i];
+      if (dayOfYear >= m.start && dayOfYear < m.start + m.days) {
+        return { index: i, name: m.name, days: m.days, start: m.start, type: m.type, dayInMonth: dayOfYear - m.start + 1 };
+      }
+    }
+    return null;
+  }
+  
+  function isEarthLeap(year) {
+    if (year % 400 === 0) return true;
+    if (year % 100 === 0) return false;
+    return year % 4 === 0;
+  }
+  
+  function getEarthDaysInMonth(year, month) {
+    const days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    if (month === 1 && isEarthLeap(year)) return 29;
+    return days[month];
+  }
+  
+  function earthToDays(y, m, d) {
+    return (new Date(Date.UTC(y, m, d)) - EPOCH) / MS_PER_DAY;
+  }
+  
+  const anchorEarthDays = earthToDays(2264, 8, 23);
+  const anchorValenTotal = getValenTotalBeforeYear(754) + 1;
+  const VALEN_DAY_EARTH_DAYS = VALEN_DAY_HOURS / 24;
+  
+  function earthToValen(y, m, d) {
+    const earthDays = earthToDays(y, m, d);
+    const valenTotal = anchorValenTotal + (earthDays - anchorEarthDays) / VALEN_DAY_EARTH_DAYS;
+    let remaining = Math.floor(valenTotal);
+    let year = 1;
+    while (true) {
+      const daysInYear = getValenDaysInYear(year);
+      if (remaining < daysInYear) return { year, day: remaining + 1 };
+      remaining -= daysInYear;
+      year++;
+    }
+  }
+  
+  function valenToEarth(year, dayOfYear) {
+    const total = getValenTotalBeforeYear(year) + (dayOfYear - 1);
+    const earthDays = anchorEarthDays + (total - anchorValenTotal) * VALEN_DAY_EARTH_DAYS;
+    const date = new Date(EPOCH.getTime() + earthDays * MS_PER_DAY);
+    return { year: date.getUTCFullYear(), month: date.getUTCMonth(), day: date.getUTCDate() };
+  }
+
+  // State
+  let state = {
+    earthYear: 2264, earthMonth: 8, earthDay: 23,
+    valenYear: 754, valenDay: 2, valenMonthIdx: 0
+  };
+
+  // DOM elements
+  const el = {
+    earthYear: document.getElementById('earthYear'),
+    earthMonth: document.getElementById('earthMonth'),
+    earthDay: document.getElementById('earthDay'),
+    earthMonthDisp: document.getElementById('earthMonthDisplay'),
+    earthGrid: document.getElementById('earthCalendarGrid'),
+    valenYear: document.getElementById('valenYear'),
+    valenDay: document.getElementById('valenDay'),
+    valenMonthDisp: document.getElementById('valenMonthDisplay'),
+    valenDayRange: document.getElementById('valenDayRange'),
+    valenContainer: document.getElementById('valenCalendarContainer'),
+    resultMain: document.getElementById('resultMainText'),
+    resultDetails: document.getElementById('resultDetails')
+  };
+
+  // Populate month select
+  EARTH_MONTHS.forEach((m, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = m;
+    el.earthMonth.appendChild(opt);
+  });
+  el.earthMonth.value = 8;
+
+  function renderEarth() {
+    const { earthYear, earthMonth, earthDay } = state;
+    const firstDay = new Date(Date.UTC(earthYear, earthMonth, 1));
+    let offset = (firstDay.getUTCDay() + 6) % 7;
+    const daysInMonth = getEarthDaysInMonth(earthYear, earthMonth);
+    
+    const isLeap = isEarthLeap(earthYear);
+    const leapText = (earthMonth === 1 && isLeap) ? ' (leap)' : '';
+    el.earthMonthDisp.textContent = `${EARTH_MONTHS[earthMonth]} ${earthYear}${leapText}`;
+    
+    let html = '';
+    for (let i = 0; i < offset; i++) html += `<div class="cal-cell other-month"></div>`;
+    for (let d = 1; d <= daysInMonth; d++) {
+      const sel = (d === earthDay);
+      html += `<div class="cal-cell ${sel ? 'highlight' : ''}" data-day="${d}">${d}</div>`;
+    }
+    const totalCells = Math.ceil((offset + daysInMonth) / 7) * 7;
+    for (let i = offset + daysInMonth; i < totalCells; i++) html += `<div class="cal-cell other-month"></div>`;
+    
+    el.earthGrid.innerHTML = html;
+    
+    document.querySelectorAll('#earthCalendarGrid .cal-cell[data-day]').forEach(c => {
+      c.addEventListener('click', () => {
+        state.earthDay = parseInt(c.dataset.day);
+        updateFromEarth();
+      });
+    });
+  }
+
+  function renderValen() {
+    const { valenYear, valenDay } = state;
+    const months = getValenMonths(valenYear);
+    const info = getValenMonthInfo(valenYear, valenDay);
+    const month = months[info.index];
+    const selDay = info.dayInMonth;
+    
+    state.valenMonthIdx = info.index;
+    
+    const isLeap = isValenLeap(valenYear);
+    const leapNote = (month.name === "Inter Two" && isLeap) ? ' (leap +2)' : '';
+    el.valenMonthDisp.textContent = month.name + leapNote;
+    el.valenDayRange.textContent = `Day ${selDay} of ${month.days}`;
+    
+    if (month.type === 'lentar') {
+      let html = `<div class="valen-grid lentar-grid">`;
+      html += `<div class="grid-label"></div>`;
+      for (let i = 1; i <= 9; i++) html += `<div class="weekday-header valen">${i}</div>`;
+      
+      html += `<div class="grid-label">Free</div>`;
+      for (let i = 1; i <= 9; i++) {
+        if (i <= 3) {
+          const d = i;
+          html += `<div class="cal-cell free-day ${d === selDay ? 'highlight' : ''}" data-vday="${month.start + d - 1}">${d}</div>`;
+        } else {
+          html += `<div class="cal-cell empty-cell"></div>`;
+        }
+      }
+      
+      for (let w = 1; w <= 16; w++) {
+        html += `<div class="grid-label">Week ${w}</div>`;
+        for (let wd = 1; wd <= 9; wd++) {
+          const d = 3 + (w - 1) * 9 + wd;
+          html += `<div class="cal-cell ${d === selDay ? 'highlight' : ''}" data-vday="${month.start + d - 1}">${d}</div>`;
+        }
+      }
+      
+      html += `<div class="grid-label">Free</div>`;
+      for (let i = 1; i <= 9; i++) {
+        if (i <= 3) {
+          const d = 147 + i;
+          html += `<div class="cal-cell free-day ${d === selDay ? 'highlight' : ''}" data-vday="${month.start + d - 1}">${d}</div>`;
+        } else {
+          html += `<div class="cal-cell empty-cell"></div>`;
+        }
+      }
+      html += `</div>`;
+      el.valenContainer.innerHTML = html;
+    } else {
+      let html = `<div class="inter-grid">`;
+      for (let d = 1; d <= month.days; d++) {
+        const extra = (month.name === "Inter Two" && isLeap && d > 12) ? 'leap-day' : '';
+        html += `<div class="cal-cell ${extra} ${d === selDay ? 'highlight' : ''}" data-vday="${month.start + d - 1}">${d}</div>`;
+      }
+      html += `</div>`;
+      el.valenContainer.innerHTML = html;
+    }
+    
+    document.querySelectorAll('[data-vday]').forEach(c => {
+      c.addEventListener('click', () => {
+        state.valenDay = parseInt(c.dataset.vday);
+        updateFromValen();
+      });
+    });
+  }
+
+  function updateFromEarth() {
+    const conv = earthToValen(state.earthYear, state.earthMonth, state.earthDay);
+    state.valenYear = conv.year;
+    state.valenDay = conv.day;
+    updateUI();
+  }
+
+  function updateFromValen() {
+    const earth = valenToEarth(state.valenYear, state.valenDay);
+    state.earthYear = earth.year;
+    state.earthMonth = earth.month;
+    state.earthDay = earth.day;
+    updateUI();
+  }
+
+  function updateUI() {
+    el.earthYear.value = state.earthYear;
+    el.earthMonth.value = state.earthMonth;
+    el.earthDay.value = state.earthDay;
+    el.valenYear.value = state.valenYear;
+    el.valenDay.value = state.valenDay;
+    
+    renderEarth();
+    renderValen();
+    
+    const info = getValenMonthInfo(state.valenYear, state.valenDay);
+    el.resultMain.innerHTML = `📌 ${state.earthDay} ${EARTH_MONTHS[state.earthMonth]} ${state.earthYear} ⇢ Valen ${state.valenYear} · ${info.name} day ${info.dayInMonth}`;
+    el.resultDetails.innerHTML = `📐 1 Valen day = ${VALEN_DAY_HOURS.toFixed(3)}h · Year: ${getValenDaysInYear(state.valenYear)} days`;
+  }
+
+  // Event listeners
+  document.getElementById('earthPrevMonth').addEventListener('click', () => {
+    if (state.earthMonth === 0) { state.earthMonth = 11; state.earthYear--; }
+    else state.earthMonth--;
+    const max = getEarthDaysInMonth(state.earthYear, state.earthMonth);
+    if (state.earthDay > max) state.earthDay = max;
+    updateFromEarth();
+  });
+  
+  document.getElementById('earthNextMonth').addEventListener('click', () => {
+    if (state.earthMonth === 11) { state.earthMonth = 0; state.earthYear++; }
+    else state.earthMonth++;
+    const max = getEarthDaysInMonth(state.earthYear, state.earthMonth);
+    if (state.earthDay > max) state.earthDay = max;
+    updateFromEarth();
+  });
+
+  el.earthYear.addEventListener('change', () => {
+    state.earthYear = parseInt(el.earthYear.value) || 2264;
+    const max = getEarthDaysInMonth(state.earthYear, state.earthMonth);
+    if (state.earthDay > max) state.earthDay = max;
+    updateFromEarth();
+  });
+
+  el.earthMonth.addEventListener('change', () => {
+    state.earthMonth = parseInt(el.earthMonth.value);
+    const max = getEarthDaysInMonth(state.earthYear, state.earthMonth);
+    if (state.earthDay > max) state.earthDay = max;
+    updateFromEarth();
+  });
+
+  el.earthDay.addEventListener('change', () => {
+    state.earthDay = parseInt(el.earthDay.value) || 1;
+    const max = getEarthDaysInMonth(state.earthYear, state.earthMonth);
+    if (state.earthDay > max) state.earthDay = max;
+    updateFromEarth();
+  });
+
+  document.getElementById('valenPrevMonth').addEventListener('click', () => {
+    const months = getValenMonths(state.valenYear);
+    if (state.valenMonthIdx > 0) state.valenMonthIdx--;
+    else { state.valenYear--; state.valenMonthIdx = getValenMonths(state.valenYear).length - 1; }
+    state.valenDay = getValenMonths(state.valenYear)[state.valenMonthIdx].start;
+    updateFromValen();
+  });
+
+  document.getElementById('valenNextMonth').addEventListener('click', () => {
+    const months = getValenMonths(state.valenYear);
+    if (state.valenMonthIdx < months.length - 1) state.valenMonthIdx++;
+    else { state.valenYear++; state.valenMonthIdx = 0; }
+    state.valenDay = getValenMonths(state.valenYear)[state.valenMonthIdx].start;
+    updateFromValen();
+  });
+
+  el.valenYear.addEventListener('change', () => {
+    state.valenYear = parseInt(el.valenYear.value) || 754;
+    const max = getValenDaysInYear(state.valenYear);
+    if (state.valenDay > max) state.valenDay = max;
+    updateFromValen();
+  });
+
+  el.valenDay.addEventListener('change', () => {
+    state.valenDay = parseInt(el.valenDay.value) || 1;
+    const max = getValenDaysInYear(state.valenYear);
+    if (state.valenDay > max) state.valenDay = max;
+    updateFromValen();
+  });
+
+  // Initialize
+  updateUI();
+})();
+</script>
 </body>
 </html>
