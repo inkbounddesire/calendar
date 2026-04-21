@@ -331,7 +331,6 @@
   const ANCHOR_EARTH = new Date(Date.UTC(2264, 8, 23, 0, 0, 0));
   const ANCHOR_VALEN_YEAR = 754;
   const ANCHOR_VALEN_DAY = 2;
-  const ANCHOR_VALEN_TIME = 0;
   
   const EPOCH = new Date(Date.UTC(1970, 0, 1));
   const MS_PER_HOUR = 3600000;
@@ -340,28 +339,29 @@
   
   const EARTH_MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   
-  // Season definitions for Northern Hemisphere
-  // Using approximate astronomical dates (can vary by 1 day)
+  // Season definitions with correct dates
   function getSeasonEvents(year) {
-    const isLeap = isEarthLeap(year);
+    const marEquinox = 20;
+    const junSolstice = 21;
+    const sepEquinox = (year % 4 === 0) ? 22 : 23;
+    const decSolstice = 21;
     
     return {
       northern: [
-        { name: "Spring Equinox", start: { month: 2, day: 20 }, end: { month: 5, day: 20 }, color: "#d4e8c2", hover: "🌸 Spring Equinox ~Mar 20" },
-        { name: "Summer Solstice", start: { month: 5, day: 21 }, end: { month: 8, day: 22 }, color: "#f5d5a8", hover: "☀️ Summer Solstice ~Jun 21" },
-        { name: "Autumn Equinox", start: { month: 8, day: 23 }, end: { month: 11, day: 20 }, color: "#e8c78a", hover: "🍂 Autumn Equinox ~Sep 23" },
-        { name: "Winter Solstice", start: { month: 11, day: 21 }, end: { month: 1, day: 19 }, color: "#b8d4e8", hover: "❄️ Winter Solstice ~Dec 21" }
+        { name: "Winter", start: { month: 11, day: decSolstice }, end: { month: 2, day: marEquinox - 1 }, color: "#b8d4e8", hover: `❄️ Winter (Dec ${decSolstice} - Mar ${marEquinox - 1})` },
+        { name: "Spring", start: { month: 2, day: marEquinox }, end: { month: 5, day: junSolstice - 1 }, color: "#d4e8c2", hover: `🌸 Spring (Mar ${marEquinox} - Jun ${junSolstice - 1})` },
+        { name: "Summer", start: { month: 5, day: junSolstice }, end: { month: 8, day: sepEquinox - 1 }, color: "#f5d5a8", hover: `☀️ Summer (Jun ${junSolstice} - Sep ${sepEquinox - 1})` },
+        { name: "Autumn", start: { month: 8, day: sepEquinox }, end: { month: 11, day: decSolstice - 1 }, color: "#e8c78a", hover: `🍂 Autumn (Sep ${sepEquinox} - Dec ${decSolstice - 1})` }
       ],
       southern: [
-        { name: "Autumn Equinox", start: { month: 2, day: 20 }, end: { month: 5, day: 20 }, color: "#e8c78a", hover: "🍂 Autumn Equinox ~Mar 20" },
-        { name: "Winter Solstice", start: { month: 5, day: 21 }, end: { month: 8, day: 22 }, color: "#b8d4e8", hover: "❄️ Winter Solstice ~Jun 21" },
-        { name: "Spring Equinox", start: { month: 8, day: 23 }, end: { month: 11, day: 20 }, color: "#d4e8c2", hover: "🌸 Spring Equinox ~Sep 23" },
-        { name: "Summer Solstice", start: { month: 11, day: 21 }, end: { month: 1, day: 19 }, color: "#f5d5a8", hover: "☀️ Summer Solstice ~Dec 21" }
+        { name: "Summer", start: { month: 11, day: decSolstice }, end: { month: 2, day: marEquinox - 1 }, color: "#f5d5a8", hover: `☀️ Summer (Dec ${decSolstice} - Mar ${marEquinox - 1})` },
+        { name: "Autumn", start: { month: 2, day: marEquinox }, end: { month: 5, day: junSolstice - 1 }, color: "#e8c78a", hover: `🍂 Autumn (Mar ${marEquinox} - Jun ${junSolstice - 1})` },
+        { name: "Winter", start: { month: 5, day: junSolstice }, end: { month: 8, day: sepEquinox - 1 }, color: "#b8d4e8", hover: `❄️ Winter (Jun ${junSolstice} - Sep ${sepEquinox - 1})` },
+        { name: "Spring", start: { month: 8, day: sepEquinox }, end: { month: 11, day: decSolstice - 1 }, color: "#d4e8c2", hover: `🌸 Spring (Sep ${sepEquinox} - Dec ${decSolstice - 1})` }
       ]
     };
   }
   
-  // Get season for a specific date
   function getSeasonForDate(year, month, day, hemisphere = 'northern') {
     const events = getSeasonEvents(year)[hemisphere];
     const dateValue = month * 100 + day;
@@ -371,21 +371,14 @@
       const endVal = season.end.month * 100 + season.end.day;
       
       if (startVal <= endVal) {
-        // Normal range within same year
-        if (dateValue >= startVal && dateValue <= endVal) {
-          return season;
-        }
+        if (dateValue >= startVal && dateValue <= endVal) return season;
       } else {
-        // Wraps around year end (e.g., Dec 21 to Mar 19)
-        if (dateValue >= startVal || dateValue <= endVal) {
-          return season;
-        }
+        if (dateValue >= startVal || dateValue <= endVal) return season;
       }
     }
     return null;
   }
   
-  // Helper functions
   function isValenLeap(year) {
     return (year - VALEN_LEAP_REF) % VALEN_LEAP_CYCLE === 0;
   }
@@ -441,13 +434,7 @@
   
   function msToEarth(ms) {
     const date = new Date(ms);
-    return {
-      year: date.getUTCFullYear(),
-      month: date.getUTCMonth(),
-      day: date.getUTCDate(),
-      hour: date.getUTCHours(),
-      minute: date.getUTCMinutes()
-    };
+    return { year: date.getUTCFullYear(), month: date.getUTCMonth(), day: date.getUTCDate(), hour: date.getUTCHours(), minute: date.getUTCMinutes() };
   }
   
   const anchorEarthMs = earthToMs(2264, 8, 23);
@@ -494,7 +481,7 @@
     earthYear: 2264, earthMonth: 8, earthDay: 23,
     valenYear: 754, valenDay: 2, valenMonthIdx: 0,
     valenTimeOfDay: 0,
-    hemisphere: 'northern' // 'northern' or 'southern'
+    hemisphere: 'northern'
   };
 
   // DOM elements
@@ -664,19 +651,19 @@
     el.resultDetails.innerHTML = `📐 1 Valen day = ${VALEN_DAY_HOURS.toFixed(3)}h · ${hemiText} · Offset: +${hourDiff}h`;
   }
 
-  // Add hemisphere toggle button to the UI
+  // Add hemisphere toggle button
+  const earthPanel = document.querySelector('.panel:first-child h2');
   const hemisphereBtn = document.createElement('button');
-  hemisphereBtn.textContent = '🌍 Switch to Southern';
-  hemisphereBtn.style.margin = '0 10px';
-  hemisphereBtn.addEventListener('click', () => {
+  hemisphereBtn.textContent = '🌍 S. Hemisphere';
+  hemisphereBtn.style.cssText = 'font-size: 0.8rem; padding: 4px 12px; margin-left: 10px; background: #d4cbb8; border-bottom-width: 2px;';
+  hemisphereBtn.addEventListener('click', (e) => {
+    e.preventDefault();
     state.hemisphere = state.hemisphere === 'northern' ? 'southern' : 'northern';
-    hemisphereBtn.textContent = state.hemisphere === 'northern' ? '🌍 Switch to Southern' : '🌏 Switch to Northern';
+    hemisphereBtn.textContent = state.hemisphere === 'northern' ? '🌍 S. Hemisphere' : '🌏 N. Hemisphere';
     renderEarth();
     updateUI();
   });
-  
-  // Insert button near the Earth panel title
-  document.querySelector('.panel h2').appendChild(hemisphereBtn);
+  earthPanel.appendChild(hemisphereBtn);
 
   // Event listeners
   document.getElementById('earthPrevMonth').addEventListener('click', () => {
