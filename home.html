@@ -339,9 +339,8 @@
   
   const EARTH_MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   
-  // Season definitions with distinct colors
-  // Winter = blue, Summer = green, Spring = pink, Autumn = orange
-  function getSeasonEvents(year) {
+  // Earth season definitions
+  function getEarthSeasonEvents(year) {
     const marEquinox = 20;
     const junSolstice = 21;
     const sepEquinox = (year % 4 === 0) ? 22 : 23;
@@ -363,8 +362,60 @@
     };
   }
   
-  function getSeasonForDate(year, month, day, hemisphere = 'northern') {
-    const events = getSeasonEvents(year)[hemisphere];
+  // Valen season definitions
+  function getValenSeasonEvents(year) {
+    const isLeap = isValenLeap(year);
+    const interTwoExtra = isLeap ? 2 : 0;
+    
+    // Season boundaries (day of year, 1-indexed)
+    return [
+      { 
+        name: "Cold", 
+        startDay: 163 + 59, // Second Len'tar day 60 = start 163 + 59 = 222
+        endDay: isLeap ? 327 + 105 : 325 + 105, // Third Len'tar day 106 = start 325/327 + 105
+        color: "#b8d4e8", 
+        hover: `❄️ Cold Season (${isLeap ? 209 : 209} days)`
+      },
+      { 
+        name: "Mini Hot", 
+        startDay: isLeap ? 327 + 106 : 325 + 106, // Third Len'tar day 107
+        endDay: isLeap ? 327 + 149 : 325 + 149, // Third Len'tar day 150
+        color: "#f5a878", 
+        hover: `🔥 Mini Hot Season (44 days)`
+      },
+      { 
+        name: "Second Cold", 
+        startDay: isLeap ? 477 : 475, // Inter Three day 1
+        endDay: 1 + 42, // First Len'tar day 43
+        color: "#a8c0d8", 
+        hover: `❄️ Second Cold Season (55 days)`
+      },
+      { 
+        name: "Warm", 
+        startDay: 1 + 43, // First Len'tar day 44
+        endDay: 1 + 130, // First Len'tar day 131
+        color: "#d8c878", 
+        hover: `🌤️ Warm Season (88 days)`
+      },
+      { 
+        name: "Rainy", 
+        startDay: 1 + 131, // First Len'tar day 132
+        endDay: 163 + 12, // Second Len'tar day 13 (start 163 + 12 = 175)
+        color: "#78b8d8", 
+        hover: `🌧️ Rainy Season (44 days)`
+      },
+      { 
+        name: "Second Warm", 
+        startDay: 163 + 13, // Second Len'tar day 14
+        endDay: 163 + 58, // Second Len'tar day 59
+        color: "#c8d878", 
+        hover: `☀️ Second Warm Season (46 days)`
+      }
+    ];
+  }
+  
+  function getEarthSeasonForDate(year, month, day, hemisphere = 'northern') {
+    const events = getEarthSeasonEvents(year)[hemisphere];
     const dateValue = month * 100 + day;
     
     for (const season of events) {
@@ -375,6 +426,24 @@
         if (dateValue >= startVal && dateValue <= endVal) return season;
       } else {
         if (dateValue >= startVal || dateValue <= endVal) return season;
+      }
+    }
+    return null;
+  }
+  
+  function getValenSeasonForDate(year, dayOfYear) {
+    const events = getValenSeasonEvents(year);
+    
+    for (const season of events) {
+      if (season.startDay <= season.endDay) {
+        if (dayOfYear >= season.startDay && dayOfYear <= season.endDay) {
+          return season;
+        }
+      } else {
+        // Wraps around year end (Second Cold wraps from Inter Three to First Len'tar)
+        if (dayOfYear >= season.startDay || dayOfYear <= season.endDay) {
+          return season;
+        }
       }
     }
     return null;
@@ -525,7 +594,7 @@
     
     for (let d = 1; d <= daysInMonth; d++) {
       const sel = (d === earthDay);
-      const season = getSeasonForDate(earthYear, earthMonth, d, state.hemisphere);
+      const season = getEarthSeasonForDate(earthYear, earthMonth, d, state.hemisphere);
       const seasonStyle = season ? `background: ${season.color};` : '';
       const tooltip = season ? season.hover : '';
       
@@ -556,10 +625,12 @@
     
     const isLeap = isValenLeap(valenYear);
     const leapNote = (month.name === "Inter Two" && isLeap) ? ' (leap +2)' : '';
+    const season = getValenSeasonForDate(valenYear, valenDay);
+    const seasonName = season ? ` · ${season.name}` : '';
     el.valenMonthDisp.textContent = month.name + leapNote;
     
     const timeStr = formatTimeOfDay(valenTimeOfDay);
-    el.valenDayRange.textContent = `Day ${selDay} of ${month.days} · ${timeStr}`;
+    el.valenDayRange.textContent = `Day ${selDay} of ${month.days}${seasonName} · ${timeStr}`;
     
     if (month.type === 'lentar') {
       let html = `<div class="valen-grid lentar-grid">`;
@@ -570,7 +641,11 @@
       for (let i = 1; i <= 9; i++) {
         if (i <= 3) {
           const d = i;
-          html += `<div class="cal-cell free-day ${d === selDay ? 'highlight' : ''}" data-vday="${month.start + d - 1}">${d}</div>`;
+          const dayOfYear = month.start + d - 1;
+          const cellSeason = getValenSeasonForDate(valenYear, dayOfYear);
+          const seasonStyle = cellSeason ? `background: ${cellSeason.color};` : '';
+          const tooltip = cellSeason ? cellSeason.hover : '';
+          html += `<div class="cal-cell free-day ${d === selDay ? 'highlight' : ''}" data-vday="${dayOfYear}" style="${seasonStyle}" title="${tooltip}">${d}</div>`;
         } else {
           html += `<div class="cal-cell empty-cell"></div>`;
         }
@@ -580,7 +655,11 @@
         html += `<div class="grid-label">Week ${w}</div>`;
         for (let wd = 1; wd <= 9; wd++) {
           const d = 3 + (w - 1) * 9 + wd;
-          html += `<div class="cal-cell ${d === selDay ? 'highlight' : ''}" data-vday="${month.start + d - 1}">${d}</div>`;
+          const dayOfYear = month.start + d - 1;
+          const cellSeason = getValenSeasonForDate(valenYear, dayOfYear);
+          const seasonStyle = cellSeason ? `background: ${cellSeason.color};` : '';
+          const tooltip = cellSeason ? cellSeason.hover : '';
+          html += `<div class="cal-cell ${d === selDay ? 'highlight' : ''}" data-vday="${dayOfYear}" style="${seasonStyle}" title="${tooltip}">${d}</div>`;
         }
       }
       
@@ -588,7 +667,11 @@
       for (let i = 1; i <= 9; i++) {
         if (i <= 3) {
           const d = 147 + i;
-          html += `<div class="cal-cell free-day ${d === selDay ? 'highlight' : ''}" data-vday="${month.start + d - 1}">${d}</div>`;
+          const dayOfYear = month.start + d - 1;
+          const cellSeason = getValenSeasonForDate(valenYear, dayOfYear);
+          const seasonStyle = cellSeason ? `background: ${cellSeason.color};` : '';
+          const tooltip = cellSeason ? cellSeason.hover : '';
+          html += `<div class="cal-cell free-day ${d === selDay ? 'highlight' : ''}" data-vday="${dayOfYear}" style="${seasonStyle}" title="${tooltip}">${d}</div>`;
         } else {
           html += `<div class="cal-cell empty-cell"></div>`;
         }
@@ -598,8 +681,12 @@
     } else {
       let html = `<div class="inter-grid">`;
       for (let d = 1; d <= month.days; d++) {
+        const dayOfYear = month.start + d - 1;
         const extra = (month.name === "Inter Two" && isLeap && d > 12) ? 'leap-day' : '';
-        html += `<div class="cal-cell ${extra} ${d === selDay ? 'highlight' : ''}" data-vday="${month.start + d - 1}">${d}</div>`;
+        const cellSeason = getValenSeasonForDate(valenYear, dayOfYear);
+        const seasonStyle = cellSeason ? `background: ${cellSeason.color};` : '';
+        const tooltip = cellSeason ? cellSeason.hover : '';
+        html += `<div class="cal-cell ${extra} ${d === selDay ? 'highlight' : ''}" data-vday="${dayOfYear}" style="${seasonStyle}" title="${tooltip}">${d}</div>`;
       }
       html += `</div>`;
       el.valenContainer.innerHTML = html;
@@ -642,10 +729,12 @@
     
     const info = getValenMonthInfo(state.valenYear, state.valenDay);
     const timeStr = formatTimeOfDay(state.valenTimeOfDay);
-    const season = getSeasonForDate(state.earthYear, state.earthMonth, state.earthDay, state.hemisphere);
-    const seasonName = season ? season.name : '';
+    const earthSeason = getEarthSeasonForDate(state.earthYear, state.earthMonth, state.earthDay, state.hemisphere);
+    const earthSeasonName = earthSeason ? earthSeason.name : '';
+    const valenSeason = getValenSeasonForDate(state.valenYear, state.valenDay);
+    const valenSeasonName = valenSeason ? valenSeason.name : '';
     
-    el.resultMain.innerHTML = `📌 ${state.earthDay} ${EARTH_MONTHS[state.earthMonth]} ${state.earthYear} (${seasonName}) ⇢ Valen ${state.valenYear} · ${info.name} day ${info.dayInMonth} ${timeStr}`;
+    el.resultMain.innerHTML = `📌 ${state.earthDay} ${EARTH_MONTHS[state.earthMonth]} ${state.earthYear} (${earthSeasonName}) ⇢ Valen ${state.valenYear} · ${info.name} day ${info.dayInMonth} (${valenSeasonName}) ${timeStr}`;
     
     const hourDiff = (state.valenTimeOfDay * VALEN_DAY_HOURS).toFixed(1);
     const hemiText = state.hemisphere === 'northern' ? 'N. Hemisphere' : 'S. Hemisphere';
