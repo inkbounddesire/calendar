@@ -1,0 +1,61 @@
+/* ============================================
+   Valen Calendar Specific Styles
+   ============================================ */
+
+/* ========== Valen Grid ========== */
+.valen-grid {
+  display: grid;
+  gap: var(--valen-grid-gap);
+}
+
+.lentar-grid {
+  grid-template-columns: 55px repeat(9, 1fr);
+}
+
+/* ========== Grid Labels ========== */
+.grid-label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-meta);
+  padding: var(--spacing-sm) 2px;
+  text-align: right;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  user-select: none;
+}
+
+/* ========== Valen Day Range Info ========== */
+#valenDayRange {
+  display: inline-block;
+  color: var(--color-text-meta);
+}
+
+/* ========== Valen Calendar Container ========== */
+#valenCalendarContainer {
+  min-height: 200px;
+}
+
+/* ========== Valen Season Indicators ========== */
+/* These provide additional visual cues for seasons */
+.cal-cell[style*="background"] {
+  transition: background var(--transition-normal);
+}
+
+/* Season-specific cell enhancements */
+.cal-cell:not(.empty-cell):not(.other-month) {
+  &[style*="--color-season-spring"] {
+    border-left: 2px solid var(--color-season-spring);
+  }
+  
+  &[style*="--color-season-summer"] {
+    border-top: 2px solid var(--color-season-summer);
+  }
+  
+  &[style*="--color-season-autumn"] {
+    border-right: 2px solid var(--color-season-autumn);
+  }
+  
+  &[style*="--color-season-winter"] {
+    border-bottom: 2px solid var(--color-season-winter);
+  }
+}
