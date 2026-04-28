@@ -72,7 +72,521 @@
     <div id="resultDetails" class="valen-meta"></div>
   </div>
 </div>
+<script>
+(function() {
+  "use strict";
 
-<script src="script.js"></script>
+  // Constants
+  const VALEN_BASE_DAYS = 486;
+  const VALEN_DAY_HOURS = 20 + 47/60;  // 20.78333... hours
+  const EARTH_DAY_HOURS = 24;
+  const VALEN_LEAP_CYCLE = 11;
+  const VALEN_LEAP_REF = 748;
+  
+  // Anchor: Earth 2264-09-23 00:00 UTC = Valen 754 day 2 00:00
+  const ANCHOR_EARTH = new Date(Date.UTC(2264, 8, 23, 0, 0, 0));
+  const ANCHOR_VALEN_YEAR = 754;
+  const ANCHOR_VALEN_DAY = 2;
+  
+  const EPOCH = new Date(Date.UTC(1970, 0, 1));
+  const MS_PER_HOUR = 3600000;
+  const MS_PER_EARTH_DAY = EARTH_DAY_HOURS * MS_PER_HOUR;
+  const MS_PER_VALEN_DAY = VALEN_DAY_HOURS * MS_PER_HOUR;
+  
+  const EARTH_MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  
+  // Earth season definitions
+  function getEarthSeasonEvents(year) {
+    const marEquinox = 20;
+    const junSolstice = 21;
+    const sepEquinox = (year % 4 === 0) ? 22 : 23;
+    const decSolstice = 21;
+    
+    return {
+      northern: [
+        { name: "Winter", start: { month: 11, day: decSolstice }, end: { month: 2, day: marEquinox - 1 }, color: "#a8c8e8", hover: `❄️ Winter (Dec ${decSolstice} - Mar ${marEquinox - 1})` },
+        { name: "Spring", start: { month: 2, day: marEquinox }, end: { month: 5, day: junSolstice - 1 }, color: "#f0c0d0", hover: `🌸 Spring (Mar ${marEquinox} - Jun ${junSolstice - 1})` },
+        { name: "Summer", start: { month: 5, day: junSolstice }, end: { month: 8, day: sepEquinox - 1 }, color: "#a8d8a8", hover: `☀️ Summer (Jun ${junSolstice} - Sep ${sepEquinox - 1})` },
+        { name: "Autumn", start: { month: 8, day: sepEquinox }, end: { month: 11, day: decSolstice - 1 }, color: "#f0b860", hover: `🍂 Autumn (Sep ${sepEquinox} - Dec ${decSolstice - 1})` }
+      ],
+      southern: [
+        { name: "Summer", start: { month: 11, day: decSolstice }, end: { month: 2, day: marEquinox - 1 }, color: "#a8d8a8", hover: `☀️ Summer (Dec ${decSolstice} - Mar ${marEquinox - 1})` },
+        { name: "Autumn", start: { month: 2, day: marEquinox }, end: { month: 5, day: junSolstice - 1 }, color: "#f0b860", hover: `🍂 Autumn (Mar ${marEquinox} - Jun ${junSolstice - 1})` },
+        { name: "Winter", start: { month: 5, day: junSolstice }, end: { month: 8, day: sepEquinox - 1 }, color: "#a8c8e8", hover: `❄️ Winter (Jun ${junSolstice} - Sep ${sepEquinox - 1})` },
+        { name: "Spring", start: { month: 8, day: sepEquinox }, end: { month: 11, day: decSolstice - 1 }, color: "#f0c0d0", hover: `🌸 Spring (Sep ${sepEquinox} - Dec ${decSolstice - 1})` }
+      ]
+    };
+  }
+  
+  // Valen season definitions
+  function getValenSeasonEvents(year) {
+    const isLeap = isValenLeap(year);
+    const interTwoExtra = isLeap ? 2 : 0;
+    
+    // Season boundaries (day of year, 1-indexed)
+    return [
+      { 
+        name: "Cold", 
+        startDay: 163 + 59, // Second Len'tar day 60 = start 163 + 59 = 222
+        endDay: isLeap ? 327 + 105 : 325 + 105, // Third Len'tar day 106 = start 325/327 + 105
+        color: "#b8d4e8", 
+        hover: `❄️ Cold Season (${isLeap ? 209 : 209} days)`
+      },
+      { 
+        name: "Mini Hot", 
+        startDay: isLeap ? 327 + 106 : 325 + 106, // Third Len'tar day 107
+        endDay: isLeap ? 327 + 149 : 325 + 149, // Third Len'tar day 150
+        color: "#f5a878", 
+        hover: `🔥 Mini Hot Season (44 days)`
+      },
+      { 
+        name: "Second Cold", 
+        startDay: isLeap ? 477 : 475, // Inter Three day 1
+        endDay: 1 + 42, // First Len'tar day 43
+        color: "#a8c0d8", 
+        hover: `❄️ Second Cold Season (55 days)`
+      },
+      { 
+        name: "Warm", 
+        startDay: 1 + 43, // First Len'tar day 44
+        endDay: 1 + 130, // First Len'tar day 131
+        color: "#d8c878", 
+        hover: `🌤️ Warm Season (88 days)`
+      },
+      { 
+        name: "Rainy", 
+        startDay: 1 + 131, // First Len'tar day 132
+        endDay: 163 + 12, // Second Len'tar day 13 (start 163 + 12 = 175)
+        color: "#78b8d8", 
+        hover: `🌧️ Rainy Season (44 days)`
+      },
+      { 
+        name: "Second Warm", 
+        startDay: 163 + 13, // Second Len'tar day 14
+        endDay: 163 + 58, // Second Len'tar day 59
+        color: "#c8d878", 
+        hover: `☀️ Second Warm Season (46 days)`
+      }
+    ];
+  }
+  
+  function getEarthSeasonForDate(year, month, day, hemisphere = 'northern') {
+    const events = getEarthSeasonEvents(year)[hemisphere];
+    const dateValue = month * 100 + day;
+    
+    for (const season of events) {
+      const startVal = season.start.month * 100 + season.start.day;
+      const endVal = season.end.month * 100 + season.end.day;
+      
+      if (startVal <= endVal) {
+        if (dateValue >= startVal && dateValue <= endVal) return season;
+      } else {
+        if (dateValue >= startVal || dateValue <= endVal) return season;
+      }
+    }
+    return null;
+  }
+  
+  function getValenSeasonForDate(year, dayOfYear) {
+    const events = getValenSeasonEvents(year);
+    
+    for (const season of events) {
+      if (season.startDay <= season.endDay) {
+        if (dayOfYear >= season.startDay && dayOfYear <= season.endDay) {
+          return season;
+        }
+      } else {
+        // Wraps around year end (Second Cold wraps from Inter Three to First Len'tar)
+        if (dayOfYear >= season.startDay || dayOfYear <= season.endDay) {
+          return season;
+        }
+      }
+    }
+    return null;
+  }
+  
+  function isValenLeap(year) {
+    return (year - VALEN_LEAP_REF) % VALEN_LEAP_CYCLE === 0;
+  }
+  
+  function getValenDaysInYear(year) {
+    return isValenLeap(year) ? 488 : 486;
+  }
+  
+  function getValenMonths(year) {
+    const isLeap = isValenLeap(year);
+    return [
+      { name: "First Len'tar", days: 150, start: 1, type: 'lentar' },
+      { name: "Inter One", days: 12, start: 151, type: 'inter' },
+      { name: "Second Len'tar", days: 150, start: 163, type: 'lentar' },
+      { name: "Inter Two", days: isLeap ? 14 : 12, start: 313, type: 'inter' },
+      { name: "Third Len'tar", days: 150, start: isLeap ? 327 : 325, type: 'lentar' },
+      { name: "Inter Three", days: 12, start: isLeap ? 477 : 475, type: 'inter' }
+    ];
+  }
+  
+  function getValenTotalBeforeYear(year) {
+    let days = 0;
+    for (let y = 1; y < year; y++) days += getValenDaysInYear(y);
+    return days;
+  }
+  
+  function getValenMonthInfo(year, dayOfYear) {
+    const months = getValenMonths(year);
+    for (let i = 0; i < months.length; i++) {
+      const m = months[i];
+      if (dayOfYear >= m.start && dayOfYear < m.start + m.days) {
+        return { index: i, name: m.name, days: m.days, start: m.start, type: m.type, dayInMonth: dayOfYear - m.start + 1 };
+      }
+    }
+    return null;
+  }
+  
+  function isEarthLeap(year) {
+    if (year % 400 === 0) return true;
+    if (year % 100 === 0) return false;
+    return year % 4 === 0;
+  }
+  
+  function getEarthDaysInMonth(year, month) {
+    const days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    if (month === 1 && isEarthLeap(year)) return 29;
+    return days[month];
+  }
+  
+  function earthToMs(y, m, d) {
+    return new Date(Date.UTC(y, m, d, 0, 0, 0)).getTime();
+  }
+  
+  function msToEarth(ms) {
+    const date = new Date(ms);
+    return { year: date.getUTCFullYear(), month: date.getUTCMonth(), day: date.getUTCDate(), hour: date.getUTCHours(), minute: date.getUTCMinutes() };
+  }
+  
+  const anchorEarthMs = earthToMs(2264, 8, 23);
+  
+  function earthToValen(y, m, d) {
+    const earthMs = earthToMs(y, m, d);
+    const msDiff = earthMs - anchorEarthMs;
+    const valenDaysDiff = msDiff / MS_PER_VALEN_DAY;
+    let valenTotal = (getValenTotalBeforeYear(ANCHOR_VALEN_YEAR) + (ANCHOR_VALEN_DAY - 1)) + valenDaysDiff;
+    
+    let remaining = valenTotal;
+    let year = 1;
+    while (true) {
+      const daysInYear = getValenDaysInYear(year);
+      if (remaining < daysInYear) {
+        const day = Math.floor(remaining) + 1;
+        const timeOfDay = remaining - Math.floor(remaining);
+        return { year, day, timeOfDay };
+      }
+      remaining -= daysInYear;
+      year++;
+    }
+  }
+  
+  function valenToEarth(year, day) {
+    const valenTotal = getValenTotalBeforeYear(year) + (day - 1);
+    const valenDiff = valenTotal - (getValenTotalBeforeYear(ANCHOR_VALEN_YEAR) + (ANCHOR_VALEN_DAY - 1));
+    const msDiff = valenDiff * MS_PER_VALEN_DAY;
+    const earthMs = anchorEarthMs + msDiff;
+    const roundedMs = Math.round(earthMs / MS_PER_EARTH_DAY) * MS_PER_EARTH_DAY;
+    const earth = msToEarth(roundedMs);
+    return { year: earth.year, month: earth.month, day: earth.day };
+  }
+  
+  function formatTimeOfDay(timeOfDay) {
+    const totalMinutes = timeOfDay * VALEN_DAY_HOURS * 60;
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = Math.floor(totalMinutes % 60);
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+  }
+
+  // State
+  let state = {
+    earthYear: 2264, earthMonth: 8, earthDay: 23,
+    valenYear: 754, valenDay: 2, valenMonthIdx: 0,
+    valenTimeOfDay: 0,
+    hemisphere: 'northern'
+  };
+
+  // DOM elements
+  const el = {
+    earthYear: document.getElementById('earthYear'),
+    earthMonth: document.getElementById('earthMonth'),
+    earthDay: document.getElementById('earthDay'),
+    earthMonthDisp: document.getElementById('earthMonthDisplay'),
+    earthGrid: document.getElementById('earthCalendarGrid'),
+    valenYear: document.getElementById('valenYear'),
+    valenDay: document.getElementById('valenDay'),
+    valenMonthDisp: document.getElementById('valenMonthDisplay'),
+    valenDayRange: document.getElementById('valenDayRange'),
+    valenContainer: document.getElementById('valenCalendarContainer'),
+    resultMain: document.getElementById('resultMainText'),
+    resultDetails: document.getElementById('resultDetails')
+  };
+
+  // Populate month select
+  EARTH_MONTHS.forEach((m, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = m;
+    el.earthMonth.appendChild(opt);
+  });
+  el.earthMonth.value = 8;
+
+  function renderEarth() {
+    const { earthYear, earthMonth, earthDay } = state;
+    const firstDay = new Date(Date.UTC(earthYear, earthMonth, 1));
+    let offset = (firstDay.getUTCDay() + 6) % 7;
+    const daysInMonth = getEarthDaysInMonth(earthYear, earthMonth);
+    
+    const isLeap = isEarthLeap(earthYear);
+    const leapText = (earthMonth === 1 && isLeap) ? ' (leap)' : '';
+    el.earthMonthDisp.textContent = `${EARTH_MONTHS[earthMonth]} ${earthYear}${leapText}`;
+    
+    let html = '';
+    for (let i = 0; i < offset; i++) html += `<div class="cal-cell other-month"></div>`;
+    
+    for (let d = 1; d <= daysInMonth; d++) {
+      const sel = (d === earthDay);
+      const season = getEarthSeasonForDate(earthYear, earthMonth, d, state.hemisphere);
+      const seasonStyle = season ? `background: ${season.color};` : '';
+      const tooltip = season ? season.hover : '';
+      
+      html += `<div class="cal-cell ${sel ? 'highlight' : ''}" data-day="${d}" style="${seasonStyle}" title="${tooltip}">${d}</div>`;
+    }
+    
+    const totalCells = Math.ceil((offset + daysInMonth) / 7) * 7;
+    for (let i = offset + daysInMonth; i < totalCells; i++) html += `<div class="cal-cell other-month"></div>`;
+    
+    el.earthGrid.innerHTML = html;
+    
+    document.querySelectorAll('#earthCalendarGrid .cal-cell[data-day]').forEach(c => {
+      c.addEventListener('click', () => {
+        state.earthDay = parseInt(c.dataset.day);
+        updateFromEarth();
+      });
+    });
+  }
+
+  function renderValen() {
+    const { valenYear, valenDay, valenTimeOfDay } = state;
+    const months = getValenMonths(valenYear);
+    const info = getValenMonthInfo(valenYear, valenDay);
+    const month = months[info.index];
+    const selDay = info.dayInMonth;
+    
+    state.valenMonthIdx = info.index;
+    
+    const isLeap = isValenLeap(valenYear);
+    const leapNote = (month.name === "Inter Two" && isLeap) ? ' (leap +2)' : '';
+    const season = getValenSeasonForDate(valenYear, valenDay);
+    const seasonName = season ? ` · ${season.name}` : '';
+    el.valenMonthDisp.textContent = month.name + leapNote;
+    
+    const timeStr = formatTimeOfDay(valenTimeOfDay);
+    el.valenDayRange.textContent = `Day ${selDay} of ${month.days}${seasonName} · ${timeStr}`;
+    
+    if (month.type === 'lentar') {
+      let html = `<div class="valen-grid lentar-grid">`;
+      html += `<div class="grid-label"></div>`;
+      for (let i = 1; i <= 9; i++) html += `<div class="weekday-header valen">${i}</div>`;
+      
+      html += `<div class="grid-label">Free</div>`;
+      for (let i = 1; i <= 9; i++) {
+        if (i <= 3) {
+          const d = i;
+          const dayOfYear = month.start + d - 1;
+          const cellSeason = getValenSeasonForDate(valenYear, dayOfYear);
+          const seasonStyle = cellSeason ? `background: ${cellSeason.color};` : '';
+          const tooltip = cellSeason ? cellSeason.hover : '';
+          html += `<div class="cal-cell free-day ${d === selDay ? 'highlight' : ''}" data-vday="${dayOfYear}" style="${seasonStyle}" title="${tooltip}">${d}</div>`;
+        } else {
+          html += `<div class="cal-cell empty-cell"></div>`;
+        }
+      }
+      
+      for (let w = 1; w <= 16; w++) {
+        html += `<div class="grid-label">Week ${w}</div>`;
+        for (let wd = 1; wd <= 9; wd++) {
+          const d = 3 + (w - 1) * 9 + wd;
+          const dayOfYear = month.start + d - 1;
+          const cellSeason = getValenSeasonForDate(valenYear, dayOfYear);
+          const seasonStyle = cellSeason ? `background: ${cellSeason.color};` : '';
+          const tooltip = cellSeason ? cellSeason.hover : '';
+          html += `<div class="cal-cell ${d === selDay ? 'highlight' : ''}" data-vday="${dayOfYear}" style="${seasonStyle}" title="${tooltip}">${d}</div>`;
+        }
+      }
+      
+      html += `<div class="grid-label">Free</div>`;
+      for (let i = 1; i <= 9; i++) {
+        if (i <= 3) {
+          const d = 147 + i;
+          const dayOfYear = month.start + d - 1;
+          const cellSeason = getValenSeasonForDate(valenYear, dayOfYear);
+          const seasonStyle = cellSeason ? `background: ${cellSeason.color};` : '';
+          const tooltip = cellSeason ? cellSeason.hover : '';
+          html += `<div class="cal-cell free-day ${d === selDay ? 'highlight' : ''}" data-vday="${dayOfYear}" style="${seasonStyle}" title="${tooltip}">${d}</div>`;
+        } else {
+          html += `<div class="cal-cell empty-cell"></div>`;
+        }
+      }
+      html += `</div>`;
+      el.valenContainer.innerHTML = html;
+    } else {
+      let html = `<div class="inter-grid">`;
+      for (let d = 1; d <= month.days; d++) {
+        const dayOfYear = month.start + d - 1;
+        const extra = (month.name === "Inter Two" && isLeap && d > 12) ? 'leap-day' : '';
+        const cellSeason = getValenSeasonForDate(valenYear, dayOfYear);
+        const seasonStyle = cellSeason ? `background: ${cellSeason.color};` : '';
+        const tooltip = cellSeason ? cellSeason.hover : '';
+        html += `<div class="cal-cell ${extra} ${d === selDay ? 'highlight' : ''}" data-vday="${dayOfYear}" style="${seasonStyle}" title="${tooltip}">${d}</div>`;
+      }
+      html += `</div>`;
+      el.valenContainer.innerHTML = html;
+    }
+    
+    document.querySelectorAll('[data-vday]').forEach(c => {
+      c.addEventListener('click', () => {
+        state.valenDay = parseInt(c.dataset.vday);
+        state.valenTimeOfDay = 0;
+        updateFromValen();
+      });
+    });
+  }
+
+  function updateFromEarth() {
+    const conv = earthToValen(state.earthYear, state.earthMonth, state.earthDay);
+    state.valenYear = conv.year;
+    state.valenDay = conv.day;
+    state.valenTimeOfDay = conv.timeOfDay;
+    updateUI();
+  }
+
+  function updateFromValen() {
+    const earth = valenToEarth(state.valenYear, state.valenDay);
+    state.earthYear = earth.year;
+    state.earthMonth = earth.month;
+    state.earthDay = earth.day;
+    updateUI();
+  }
+
+  function updateUI() {
+    el.earthYear.value = state.earthYear;
+    el.earthMonth.value = state.earthMonth;
+    el.earthDay.value = state.earthDay;
+    el.valenYear.value = state.valenYear;
+    el.valenDay.value = state.valenDay;
+    
+    renderEarth();
+    renderValen();
+    
+    const info = getValenMonthInfo(state.valenYear, state.valenDay);
+    const timeStr = formatTimeOfDay(state.valenTimeOfDay);
+    const earthSeason = getEarthSeasonForDate(state.earthYear, state.earthMonth, state.earthDay, state.hemisphere);
+    const earthSeasonName = earthSeason ? earthSeason.name : '';
+    const valenSeason = getValenSeasonForDate(state.valenYear, state.valenDay);
+    const valenSeasonName = valenSeason ? valenSeason.name : '';
+    
+    el.resultMain.innerHTML = `📌 ${state.earthDay} ${EARTH_MONTHS[state.earthMonth]} ${state.earthYear} (${earthSeasonName}) ⇢ Valen ${state.valenYear} · ${info.name} day ${info.dayInMonth} (${valenSeasonName}) ${timeStr}`;
+    
+    const hourDiff = (state.valenTimeOfDay * VALEN_DAY_HOURS).toFixed(1);
+    const hemiText = state.hemisphere === 'northern' ? 'N. Hemisphere' : 'S. Hemisphere';
+    el.resultDetails.innerHTML = `📐 1 Valen day = ${VALEN_DAY_HOURS.toFixed(3)}h · ${hemiText} · Offset: +${hourDiff}h`;
+  }
+
+  // Add hemisphere toggle button
+  const earthPanel = document.querySelector('.panel:first-child h2');
+  const hemisphereBtn = document.createElement('button');
+  hemisphereBtn.textContent = '🌍 S. Hemisphere';
+  hemisphereBtn.style.cssText = 'font-size: 0.8rem; padding: 4px 12px; margin-left: 10px; background: #d4cbb8; border-bottom-width: 2px;';
+  hemisphereBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    state.hemisphere = state.hemisphere === 'northern' ? 'southern' : 'northern';
+    hemisphereBtn.textContent = state.hemisphere === 'northern' ? '🌍 S. Hemisphere' : '🌏 N. Hemisphere';
+    renderEarth();
+    updateUI();
+  });
+  earthPanel.appendChild(hemisphereBtn);
+
+  // Event listeners
+  document.getElementById('earthPrevMonth').addEventListener('click', () => {
+    if (state.earthMonth === 0) { state.earthMonth = 11; state.earthYear--; }
+    else state.earthMonth--;
+    const max = getEarthDaysInMonth(state.earthYear, state.earthMonth);
+    if (state.earthDay > max) state.earthDay = max;
+    updateFromEarth();
+  });
+  
+  document.getElementById('earthNextMonth').addEventListener('click', () => {
+    if (state.earthMonth === 11) { state.earthMonth = 0; state.earthYear++; }
+    else state.earthMonth++;
+    const max = getEarthDaysInMonth(state.earthYear, state.earthMonth);
+    if (state.earthDay > max) state.earthDay = max;
+    updateFromEarth();
+  });
+
+  el.earthYear.addEventListener('change', () => {
+    state.earthYear = parseInt(el.earthYear.value) || 2264;
+    const max = getEarthDaysInMonth(state.earthYear, state.earthMonth);
+    if (state.earthDay > max) state.earthDay = max;
+    updateFromEarth();
+  });
+
+  el.earthMonth.addEventListener('change', () => {
+    state.earthMonth = parseInt(el.earthMonth.value);
+    const max = getEarthDaysInMonth(state.earthYear, state.earthMonth);
+    if (state.earthDay > max) state.earthDay = max;
+    updateFromEarth();
+  });
+
+  el.earthDay.addEventListener('change', () => {
+    state.earthDay = parseInt(el.earthDay.value) || 1;
+    const max = getEarthDaysInMonth(state.earthYear, state.earthMonth);
+    if (state.earthDay > max) state.earthDay = max;
+    updateFromEarth();
+  });
+
+  document.getElementById('valenPrevMonth').addEventListener('click', () => {
+    const months = getValenMonths(state.valenYear);
+    if (state.valenMonthIdx > 0) state.valenMonthIdx--;
+    else { state.valenYear--; state.valenMonthIdx = getValenMonths(state.valenYear).length - 1; }
+    state.valenDay = getValenMonths(state.valenYear)[state.valenMonthIdx].start;
+    state.valenTimeOfDay = 0;
+    updateFromValen();
+  });
+
+  document.getElementById('valenNextMonth').addEventListener('click', () => {
+    const months = getValenMonths(state.valenYear);
+    if (state.valenMonthIdx < months.length - 1) state.valenMonthIdx++;
+    else { state.valenYear++; state.valenMonthIdx = 0; }
+    state.valenDay = getValenMonths(state.valenYear)[state.valenMonthIdx].start;
+    state.valenTimeOfDay = 0;
+    updateFromValen();
+  });
+
+  el.valenYear.addEventListener('change', () => {
+    state.valenYear = parseInt(el.valenYear.value) || 754;
+    const max = getValenDaysInYear(state.valenYear);
+    if (state.valenDay > max) state.valenDay = max;
+    state.valenTimeOfDay = 0;
+    updateFromValen();
+  });
+
+  el.valenDay.addEventListener('change', () => {
+    state.valenDay = parseInt(el.valenDay.value) || 1;
+    const max = getValenDaysInYear(state.valenYear);
+    if (state.valenDay > max) state.valenDay = max;
+    state.valenTimeOfDay = 0;
+    updateFromValen();
+  });
+
+  // Initialize
+  updateUI();
+})();
+</script>
+
 </body>
 </html>
