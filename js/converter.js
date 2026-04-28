@@ -30,45 +30,41 @@ const EARTH_SEASON_COLORS = {
 
 const EARTH_SEASON_EMOJI = ["❄️", "🌸", "☀️", "🍂"];
 
+// Earth season definitions
 function getEarthSeasonEvents(year) {
-  const marEq = 20;
-  const junSol = 21;
-  const sepEq = (year % 4 === 0) ? 22 : 23;
-  const decSol = 21;
-
-  const boundaries = [
-    { start: { m: 11, d: decSol }, end: { m: 2, d: marEq - 1 } },  // Dec 21 – Mar 19
-    { start: { m: 2, d: marEq }, end: { m: 5, d: junSol - 1 } },    // Mar 20 – Jun 20
-    { start: { m: 5, d: junSol }, end: { m: 8, d: sepEq - 1 } },    // Jun 21 – Sep 21/22
-    { start: { m: 8, d: sepEq }, end: { m: 11, d: decSol - 1 } }    // Sep 22/23 – Dec 20
-  ];
-
-  function build(hemi, idxMap) {
-    return boundaries.map((b, i) => ({
-      name: EARTH_SEASON_NAMES[hemi][i],
-      start: { month: b.start.m, day: b.start.d },
-      end: { month: b.end.m, day: b.end.d },
-      color: EARTH_SEASON_COLORS[hemi][i],
-      hover: `${EARTH_SEASON_EMOJI[i]} ${EARTH_SEASON_NAMES[hemi][i]} (${EARTH_MONTHS[b.start.m].slice(0,3)} ${b.start.d} – ${EARTH_MONTHS[b.end.m].slice(0,3)} ${b.end.d})`
-    }));
-  }
-
+  const marEquinox = 20;
+  const junSolstice = 21;
+  const sepEquinox = (year % 4 === 0) ? 22 : 23;
+  const decSolstice = 21;
+  
   return {
-    northern: build("northern"),
-    southern: build("southern")
+    northern: [
+      { name: "Winter", start: { month: 11, day: decSolstice }, end: { month: 2, day: marEquinox - 1 }, color: "#a8c8e8", hover: `❄️ Winter (Dec ${decSolstice} - Mar ${marEquinox - 1})` },
+      { name: "Spring", start: { month: 2, day: marEquinox }, end: { month: 5, day: junSolstice - 1 }, color: "#f0c0d0", hover: `🌸 Spring (Mar ${marEquinox} - Jun ${junSolstice - 1})` },
+      { name: "Summer", start: { month: 5, day: junSolstice }, end: { month: 8, day: sepEquinox - 1 }, color: "#a8d8a8", hover: `☀️ Summer (Jun ${junSolstice} - Sep ${sepEquinox - 1})` },
+      { name: "Autumn", start: { month: 8, day: sepEquinox }, end: { month: 11, day: decSolstice - 1 }, color: "#f0b860", hover: `🍂 Autumn (Sep ${sepEquinox} - Dec ${decSolstice - 1})` }
+    ],
+    southern: [
+      { name: "Summer", start: { month: 11, day: decSolstice }, end: { month: 2, day: marEquinox - 1 }, color: "#a8d8a8", hover: `☀️ Summer (Dec ${decSolstice} - Mar ${marEquinox - 1})` },
+      { name: "Autumn", start: { month: 2, day: marEquinox }, end: { month: 5, day: junSolstice - 1 }, color: "#f0b860", hover: `🍂 Autumn (Mar ${marEquinox} - Jun ${junSolstice - 1})` },
+      { name: "Winter", start: { month: 5, day: junSolstice }, end: { month: 8, day: sepEquinox - 1 }, color: "#a8c8e8", hover: `❄️ Winter (Jun ${junSolstice} - Sep ${sepEquinox - 1})` },
+      { name: "Spring", start: { month: 8, day: sepEquinox }, end: { month: 11, day: decSolstice - 1 }, color: "#f0c0d0", hover: `🌸 Spring (Sep ${sepEquinox} - Dec ${decSolstice - 1})` }
+    ]
   };
 }
 
 function getEarthSeasonForDate(year, month, day, hemisphere = 'northern') {
-  const seasons = getEarthSeasonEvents(year)[hemisphere];
-  const dateVal = month * 100 + day;
-
-  for (const s of seasons) {
-    const startVal = s.start.month * 100 + s.start.day;
-    const endVal = s.end.month * 100 + s.end.day;
-    if (startVal <= endVal ? (dateVal >= startVal && dateVal <= endVal)
-                            : (dateVal >= startVal || dateVal <= endVal)) {
-      return s;
+  const events = getEarthSeasonEvents(year)[hemisphere];
+  const dateValue = month * 100 + day;
+  
+  for (const season of events) {
+    const startVal = season.start.month * 100 + season.start.day;
+    const endVal = season.end.month * 100 + season.end.day;
+    
+    if (startVal <= endVal) {
+      if (dateValue >= startVal && dateValue <= endVal) return season;
+    } else {
+      if (dateValue >= startVal || dateValue <= endVal) return season;
     }
   }
   return null;
