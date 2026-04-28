@@ -1,0 +1,71 @@
+/* ============================================
+   Typography Styles
+   ============================================ */
+h1 {
+  margin-bottom: var(--spacing-sm);
+  font-weight: var(--font-weight-normal);
+  font-size: var(--font-size-3xl);
+  color: var(--color-text-heading);
+}
+
+.subtitle {
+  margin-bottom: var(--spacing-2xl);
+  font-style: italic;
+  color: var(--color-text-subtitle);
+  border-bottom: 1px dashed var(--color-border-subtitle);
+  padding-bottom: 10px;
+}
+
+.anchor-note {
+  color: var(--color-text-anchor);
+  
+  & strong {
+    font-weight: var(--font-weight-semibold);
+  }
+}
+
+.panel h2 {
+  margin-bottom: var(--spacing-2xl);
+  font-weight: 350;
+  font-size: var(--font-size-2xl);
+  color: var(--color-text-panel-heading);
+  border-bottom: var(--border-standard) var(--color-border-panel-bottom);
+  padding-bottom: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.month-name,
+.valen-month-name {
+  font-weight: var(--font-weight-normal);
+}
+
+.month-name {
+  font-size: var(--font-size-xl);
+  color: var(--color-text-label);
+}
+
+.valen-month-name {
+  font-size: var(--font-size-lg);
+  color: #4a6740;
+}
+
+.input-group label,
+.flex-row label {
+  min-width: 40px;
+  color: var(--color-text-label);
+  font-weight: var(--font-weight-medium);
+}
+
+.conversion-result {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-result);
+}
+
+.valen-meta {
+  font-size: var(--font-size-md);
+  opacity: 0.8;
+  margin-top: var(--spacing-md);
+  color: var(--color-text-details);
+}
