@@ -1,0 +1,110 @@
+/* ============================================
+   Calendar Styles (Earth & General)
+   ============================================ */
+
+/* ========== Calendar Grid ========== */
+.calendar-grid {
+  display: grid;
+  gap: var(--grid-gap);
+  text-align: center;
+  margin-top: var(--spacing-md);
+}
+
+.seven-cols {
+  grid-template-columns: repeat(7, 1fr);
+}
+
+/* ========== Weekday Headers ========== */
+.weekday-header {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-weekday);
+  padding: var(--spacing-xs) 0;
+  font-size: var(--font-size-sm);
+  text-transform: uppercase;
+  user-select: none;
+  
+  &.valen {
+    text-transform: none;
+    font-size: 0.7rem;
+  }
+}
+
+/* ========== Calendar Cells ========== */
+.cal-cell {
+  background: var(--color-bg-cell);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-md) var(--spacing-xs);
+  font-size: var(--font-size-md);
+  border: var(--border-standard) var(--color-border-cell);
+  color: var(--color-text-cell);
+  cursor: pointer;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  transition: all var(--transition-fast);
+  user-select: none;
+  position: relative;
+  
+  &:hover:not(.empty-cell):not(.other-month) {
+    transform: scale(1.05);
+    z-index: var(--z-hover);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* ===== Cell States ===== */
+  &.highlight {
+    background: var(--color-bg-highlight);
+    color: var(--color-text-highlight);
+    font-weight: var(--font-weight-bold);
+    border-color: var(--color-border-highlight);
+    
+    &:hover {
+      transform: scale(1.08);
+    }
+  }
+  
+  &.other-month {
+    opacity: 0.3;
+    cursor: default;
+    
+    &:hover {
+      transform: none;
+      box-shadow: none;
+    }
+  }
+  
+  &.free-day {
+    background: var(--color-bg-cell-free);
+  }
+  
+  &.empty-cell {
+    background: transparent;
+    border: 1px dashed var(--color-border-dashed);
+    cursor: default;
+    opacity: 0.5;
+    
+    &:hover {
+      transform: none;
+      box-shadow: none;
+    }
+  }
+  
+  &.leap-day {
+    background: var(--color-bg-cell-leap);
+    border-color: var(--color-border-leap);
+  }
+  
+  /* Tooltip support */
+  &[title] {
+    cursor: help;
+  }
+}
+
+/* ========== Intercalary Grid ========== */
+.inter-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--inter-grid-gap);
+}
