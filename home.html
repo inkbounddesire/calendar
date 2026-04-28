@@ -72,13 +72,11 @@
     <div id="resultDetails" class="valen-meta"></div>
   </div>
 </div>
-<script src="jss/converter.js"></script>
 <script>
-(function() {
-  "use strict";
+"use strict";
 
-  // Earth season definitions
-  function getEarthSeasonEvents(year) {
+// Earth season definitions
+function getEarthSeasonEvents(year) {
     const marEquinox = 20;
     const junSolstice = 21;
     const sepEquinox = (year % 4 === 0) ? 22 : 23;
@@ -567,7 +565,7 @@
 
   // Initialize
   updateUI();
-})();
+
 </script>
 
 </body>
