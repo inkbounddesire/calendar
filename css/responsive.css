@@ -1,0 +1,214 @@
+/* ============================================
+   Responsive Design
+   Mobile-first adjustments
+   ============================================ */
+
+/* ========== Tablet (≤900px) ========== */
+@media (max-width: 900px) {
+  .two-panels {
+    flex-direction: column;
+  }
+  
+  .converter-card {
+    padding: var(--spacing-2xl);
+    border-radius: var(--radius-lg);
+  }
+  
+  h1 {
+    font-size: var(--font-size-2xl);
+  }
+  
+  .panel h2 {
+    font-size: 1.5rem;
+  }
+  
+  .input-group input,
+  .input-group select {
+    width: 100% !important;
+    max-width: none;
+  }
+  
+  .conversion-result {
+    font-size: var(--font-size-base);
+    padding: 14px 20px;
+    
+    & > div:first-child {
+      gap: var(--spacing-lg);
+    }
+  }
+  
+  /* Adjust calendar cells for smaller screens */
+  .cal-cell {
+    min-height: 32px;
+    font-size: var(--font-size-sm);
+  }
+  
+  .lentar-grid {
+    grid-template-columns: 40px repeat(9, 1fr);
+    font-size: var(--font-size-xs);
+  }
+}
+
+/* ========== Mobile (≤600px) ========== */
+@media (max-width: 600px) {
+  body {
+    padding: var(--spacing-lg);
+  }
+  
+  .converter-card {
+    border-radius: var(--radius-md);
+    padding: var(--spacing-xl);
+  }
+  
+  h1 {
+    font-size: 1.5rem;
+  }
+  
+  .panel h2 {
+    font-size: 1.2rem;
+  }
+  
+  /* Navigation buttons */
+  .nav-btn {
+    width: 34px;
+    height: 34px;
+    font-size: var(--font-size-xl);
+    
+    &.small {
+      width: 28px;
+      height: 28px;
+      font-size: var(--font-size-base);
+    }
+  }
+  
+  /* Calendar cells */
+  .cal-cell {
+    min-height: 28px;
+    font-size: var(--font-size-xs);
+    padding: var(--spacing-xs);
+  }
+  
+  /* Input fields */
+  input,
+  select {
+    font-size: var(--font-size-sm);
+    padding: var(--spacing-sm) 10px;
+  }
+  
+  /* Anchor note */
+  .anchor-note {
+    padding: var(--spacing-md) 14px;
+    font-size: var(--font-size-sm);
+    
+    & strong {
+      display: block;
+    }
+  }
+  
+  /* Conversion result */
+  .conversion-result {
+    padding: 12px 16px;
+    font-size: var(--font-size-sm);
+    border-left-width: 6px;
+  }
+  
+  /* Grid adjustments */
+  .lentar-grid {
+    grid-template-columns: 35px repeat(9, 1fr);
+    gap: 2px;
+  }
+  
+  .inter-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-xs);
+  }
+  
+  .grid-label {
+    font-size: 0.65rem;
+  }
+  
+  /* Subtitle */
+  .subtitle {
+    font-size: var(--font-size-sm);
+  }
+}
+
+/* ========== Small Mobile (≤400px) ========== */
+@media (max-width: 400px) {
+  .two-panels {
+    gap: var(--spacing-lg);
+  }
+  
+  .panel {
+    padding: var(--spacing-lg) var(--spacing-md);
+  }
+  
+  .month-header,
+  .valen-month-header {
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+  }
+  
+  .inter-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .lentar-grid {
+    grid-template-columns: 30px repeat(9, 1fr);
+    font-size: 0.65rem;
+  }
+}
+
+/* ========== Print Styles ========== */
+@media print {
+  body {
+    background: white;
+    padding: 0;
+  }
+  
+  .converter-card {
+    box-shadow: none;
+    border: 1px solid #ccc;
+    max-width: 100%;
+  }
+  
+  .nav-btn,
+  button {
+    display: none;
+  }
+  
+  .cal-cell {
+    cursor: default;
+    
+    &:hover {
+      transform: none;
+      box-shadow: none;
+    }
+  }
+}
+
+/* ========== Dark Mode Support (Optional) ========== */
+@media (prefers-color-scheme: dark) {
+  /* Uncomment and customize if you want dark mode */
+  /*
+  :root {
+    --color-bg-primary: #1a1a1a;
+    --color-bg-card: #2a2a2a;
+    --color-bg-panel: #252525;
+    --color-text-primary: #e0e0e0;
+    --color-text-heading: #d0d0d0;
+    // ... add more dark mode tokens
+  }
+  */
+}
+
+/* ========== Reduced Motion ========== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
