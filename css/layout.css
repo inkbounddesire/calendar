@@ -1,0 +1,74 @@
+/* ============================================
+   Layout Styles
+   ============================================ */
+.converter-card {
+  max-width: 1400px;
+  width: 100%;
+  background: var(--color-bg-card);
+  border: var(--border-standard) var(--color-border-primary);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-4xl) var(--spacing-5xl) var(--spacing-6xl);
+  box-shadow: var(--shadow-card);
+}
+
+.two-panels {
+  display: flex;
+  gap: var(--two-panels-gap);
+}
+
+.panel {
+  flex: 1;
+  background: var(--color-bg-panel);
+  border-radius: var(--radius-md);
+  padding: 22px var(--spacing-2xl);
+  border: var(--border-standard) var(--color-border-panel);
+}
+
+/* Input Groups Layout */
+.input-group,
+.flex-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-md) var(--spacing-lg);
+}
+
+.input-group {
+  margin-bottom: 22px;
+}
+
+/* Month Headers Layout */
+.month-header,
+.valen-month-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.month-header {
+  margin: var(--spacing-xs) 0 var(--spacing-md);
+}
+
+.valen-month-header {
+  margin: var(--spacing-xl) 0 var(--spacing-sm);
+}
+
+/* Conversion Result Layout */
+.conversion-result {
+  margin-top: var(--spacing-5xl);
+  padding: 18px 26px;
+  
+  & > div:first-child {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2xl);
+    flex-wrap: wrap;
+  }
+}
+
+/* Anchor Note */
+.anchor-note {
+  padding: 10px 22px;
+  text-align: center;
+  margin-bottom: var(--spacing-3xl);
+}
