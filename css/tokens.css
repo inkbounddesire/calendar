@@ -1,0 +1,125 @@
+/* ============================================
+   CSS Custom Properties (Design Tokens)
+   ============================================ */
+:root {
+  /* ========== Colors ========== */
+  /* Background Colors */
+  --color-bg-primary: #f5f3eb;
+  --color-bg-card: #fefcf6;
+  --color-bg-panel: #faf8f0;
+  --color-bg-input: #fffdf9;
+  --color-bg-button: #f0eadc;
+  --color-bg-button-hover: #dbcfb2;
+  --color-bg-anchor: #e7e1cf;
+  --color-bg-result: #eae3d2;
+  --color-bg-cell: #f4efe2;
+  --color-bg-cell-free: #e8dcc8;
+  --color-bg-cell-leap: #d4c4a0;
+  --color-bg-highlight: #c9af7a;
+  --color-bg-hemisphere-btn: #d4cbb8;
+  
+  /* Border Colors */
+  --color-border-primary: #c0bba8;
+  --color-border-panel: #d6cdb2;
+  --color-border-accent: #9f8345;
+  --color-border-cell: #cec6ae;
+  --color-border-button: #b7aa8f;
+  --color-border-highlight: #a5833e;
+  --color-border-input: #bcb09a;
+  --color-border-leap: #b8a67c;
+  --color-border-dashed: #d4cbb8;
+  --color-border-subtitle: #b9b094;
+  --color-border-panel-bottom: #dbd2bc;
+  
+  /* Text Colors */
+  --color-text-primary: #1e2e1e;
+  --color-text-heading: #2c422c;
+  --color-text-subtitle: #5e6e4e;
+  --color-text-anchor: #23311e;
+  --color-text-panel-heading: #2e462e;
+  --color-text-label: #3f5532;
+  --color-text-input: #1c2b14;
+  --color-text-cell: #2e3d24;
+  --color-text-highlight: #13200e;
+  --color-text-weekday: #7d6e4b;
+  --color-text-meta: #6a715a;
+  --color-text-result: #1e351a;
+  --color-text-details: #4d5e3c;
+  --color-text-button: #3b4f2e;
+  
+  /* Season Colors (Reference) */
+  --color-season-spring: #d4e8c2;
+  --color-season-summer: #f5d5a8;
+  --color-season-autumn: #e8c78a;
+  --color-season-winter: #b8d4e8;
+  --color-season-mini-hot: #f5a878;
+  --color-season-warm: #d8c878;
+  --color-season-rainy: #78b8d8;
+  --color-season-second-warm: #c8d878;
+  --color-season-second-cold: #a8c0d8;
+  --color-season-cold: #b8d4e8;
+  
+  /* ========== Typography ========== */
+  --font-family: system-ui, 'Segoe UI', 'Roboto', sans-serif;
+  
+  /* Font Sizes */
+  --font-size-xs: 0.75rem;    /* 12px */
+  --font-size-sm: 0.8rem;     /* 12.8px */
+  --font-size-md: 0.9rem;     /* 14.4px */
+  --font-size-base: 1rem;     /* 16px */
+  --font-size-lg: 1.2rem;     /* 19.2px */
+  --font-size-xl: 1.3rem;     /* 20.8px */
+  --font-size-2xl: 1.8rem;    /* 28.8px */
+  --font-size-3xl: 2.2rem;    /* 35.2px */
+  
+  /* Font Weights */
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  /* ========== Spacing Scale ========== */
+  --spacing-xs: 4px;
+  --spacing-sm: 6px;
+  --spacing-md: 8px;
+  --spacing-lg: 12px;
+  --spacing-xl: 16px;
+  --spacing-2xl: 20px;
+  --spacing-3xl: 24px;
+  --spacing-4xl: 28px;
+  --spacing-5xl: 30px;
+  --spacing-6xl: 36px;
+  
+  /* ========== Border Radius ========== */
+  --radius-sm: 16px;
+  --radius-md: 28px;
+  --radius-lg: 30px;
+  --radius-xl: 36px;
+  --radius-full: 40px;
+  --radius-pill: 48px;
+  
+  /* ========== Shadows ========== */
+  --shadow-card: 0 12px 28px -8px rgba(40, 30, 10, 0.12);
+  
+  /* ========== Borders ========== */
+  --border-thin: 1px;
+  --border-thick-accent: 6px;
+  --border-thick-result: 10px;
+  --border-standard: var(--border-thin) solid;
+  
+  /* ========== Layout ========== */
+  --grid-gap: 5px;
+  --valen-grid-gap: 4px;
+  --inter-grid-gap: 6px;
+  --two-panels-gap: 20px;
+  
+  /* ========== Transitions ========== */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.2s ease;
+  
+  /* ========== Z-Index ========== */
+  --z-hover: 1;
+  --z-dropdown: 10;
+  --z-modal: 100;
+}
