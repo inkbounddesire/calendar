@@ -52,18 +52,51 @@ function initUI() {
 
   // Add hemisphere toggle button
   const earthPanel = document.querySelector('.panel:first-child h2');
-  const hemisphereBtn = document.createElement('button');
-  hemisphereBtn.textContent = '🌍 S. Hemisphere';
-  hemisphereBtn.style.cssText = 'font-size: 0.8rem; padding: 4px 12px; margin-left: 10px; background: #d4cbb8; border-bottom-width: 2px;';
-  hemisphereBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    state.hemisphere = state.hemisphere === 'northern' ? 'southern' : 'northern';
-    hemisphereBtn.textContent = state.hemisphere === 'northern' ? '🌍 S. Hemisphere' : '🌏 N. Hemisphere';
-    renderEarth();
-    updateUI();
-  });
-  earthPanel.appendChild(hemisphereBtn);
+  const btnGroup = document.createElement('span');
+btnGroup.style.cssText = 'margin-left: 10px; display: inline-flex; gap: 2px;';
 
+const northBtn = document.createElement('button');
+northBtn.textContent = '🌍 N';
+northBtn.style.cssText = 'font-size: 0.75rem; padding: 4px 10px; border-radius: 20px 0 0 20px; border: 1px solid #a5833e; cursor: pointer;';
+
+const southBtn = document.createElement('button');
+southBtn.textContent = '🌏 S';
+southBtn.style.cssText = 'font-size: 0.75rem; padding: 4px 10px; border-radius: 0 20px 20px 0; border: 1px solid #a5833e; cursor: pointer;';
+
+function updateHemiButtons() {
+  if (state.hemisphere === 'northern') {
+    northBtn.style.background = '#a5833e';
+    northBtn.style.color = '#fff';
+    southBtn.style.background = '#e8e0d0';
+    southBtn.style.color = '#3b4f2e';
+  } else {
+    southBtn.style.background = '#a5833e';
+    southBtn.style.color = '#fff';
+    northBtn.style.background = '#e8e0d0';
+    northBtn.style.color = '#3b4f2e';
+  }
+}
+
+northBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  state.hemisphere = 'northern';
+  updateHemiButtons();
+  renderEarth();
+  updateUI();
+});
+
+southBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  state.hemisphere = 'southern';
+  updateHemiButtons();
+  renderEarth();
+  updateUI();
+});
+
+btnGroup.appendChild(northBtn);
+btnGroup.appendChild(southBtn);
+earthPanel.appendChild(btnGroup);
+updateHemiButtons();
   // Event listeners
   document.getElementById('earthPrevMonth').addEventListener('click', () => {
     if (state.earthMonth === 0) { state.earthMonth = 11; state.earthYear--; }
