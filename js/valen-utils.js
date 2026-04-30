@@ -52,20 +52,20 @@ function getValenSeasonEvents(year) {
 {
   name: "Cold",
   startDay: 163 + 59,
-  endDay: isLeap ? 327 + 73 : 325 + 73,
+  endDay: isLeap ? 327 + 72 : 325 + 72,     
   color: "#b8d4e8",
   hover: `❄️ Cold Season`
 },
 {
   name: "Mini Hot",
-  startDay: isLeap ? 327 + 74 : 325 + 74,
-  endDay: isLeap ? 327 + 117 : 325 + 117,
+  startDay: isLeap ? 327 + 73 : 325 + 73,   
+  endDay: isLeap ? 327 + 116 : 325 + 116,  
   color: "#f5a878",
   hover: `🔥 Mini Hot Season`
 },
 {
   name: "Second Cold",
-  startDay: isLeap ? 327 + 118 : 325 + 118,  // starts right after Mini Hot
+  startDay: isLeap ? 327 + 117 : 325 + 117, 
   endDay: 1 + 42,
   color: "#a8c0d8",
   hover: `❄️ Second Cold Season`
