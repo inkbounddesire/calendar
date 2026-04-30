@@ -1,4 +1,5 @@
-// constants.js — pure data, no dependencies
+// 29/04/2026 - Veronika Seneca
+// constants.js
 
 // Day lengths
 const VALEN_BASE_DAYS = 486;
