@@ -11,19 +11,15 @@ A side-by-side calendar converter between Earth's Gregorian calendar and the fic
 
 ## Project Structure
 
-
----
-
-## Project Structure
-
-home.html
-css/styles.css
-js/constants.js
-js/earth-utils.js
-js/valen-utils.js
-js/converter.js
-js/ui.js
-
+    home.html
+    css/
+      styles.css
+    js/
+      constants.js
+      earth-utils.js
+      valen-utils.js
+      converter.js
+      ui.js
 ---
 
 ## Dependency Chain
