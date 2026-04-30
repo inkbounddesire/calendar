@@ -20,32 +20,18 @@ A side-by-side calendar converter between Earth's Gregorian calendar and the fic
       valen-utils.js
       converter.js
       ui.js
----
-
 ## Dependency Chain
 
-constants.js has no dependencies.
+    constants.js
+    ├── earth-utils.js
+    └── valen-utils.js
 
-earth-utils.js depends on constants.js.
+    earth-utils.js + valen-utils.js
+    └── converter.js
 
-valen-utils.js depends on constants.js.
-
-converter.js depends on constants.js, earth-utils.js, and valen-utils.js.
-
-ui.js depends on converter.js and all files before it.
-
-Scripts are loaded in this order in home.html:
-
-1. constants.js
-2. earth-utils.js
-3. valen-utils.js
-4. converter.js
-5. ui.js
-
-ui.js calls initUI() and updateUI() on DOMContentLoaded.
-
----
-
+    converter.js
+    └── ui.js
+    
 ### constants.js
 - `VALEN_DAY_HOURS`, `MS_PER_VALEN_DAY`, `EARTH_MONTHS`, etc.
 - Anchor: `ANCHOR_EARTH` = 2264-09-23 UTC, `ANCHOR_VALEN_YEAR` = 754, `ANCHOR_VALEN_DAY` = 2
