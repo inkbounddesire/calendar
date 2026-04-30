@@ -47,7 +47,7 @@ function getEarthSeasonEvents(year) {
     start: { month: startMonth, day: startDay },
     end: { month: endMonth, day: endDay },
     color,
-    hover: `${emoji} ${name} (${getMonthAbbr(startMonth)} ${startDay} - ${getMonthAbbr(endMonth)} ${endDay})`
+    hover: `${emoji} ${name}`
   });
 
   return {
