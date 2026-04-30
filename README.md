@@ -23,14 +23,16 @@ A side-by-side calendar converter between Earth's Gregorian calendar and the fic
 ## Dependency Chain
 
     constants.js
-    ├── earth-utils.js
-    └── valen-utils.js
+      ├── earth-utils.js
+      │     │
+      └── valen-utils.js
+            │
+        converter.js
+            │
+          ui.js
 
-    earth-utils.js + valen-utils.js
-    └── converter.js
-
-    converter.js
-    └── ui.js
+All scripts loaded from home.html in order.
+ui.js calls initUI() and updateUI() on DOMContentLoaded.
     
 ### constants.js
 - `VALEN_DAY_HOURS`, `MS_PER_VALEN_DAY`, `EARTH_MONTHS`, etc.
