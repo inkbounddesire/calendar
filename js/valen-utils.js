@@ -1,3 +1,4 @@
+// 29/04/2026 - Veronika Seneca
 // valen-utils.js — depends on constants.js
 
 function isValenLeap(year) {
@@ -12,11 +13,11 @@ function getValenMonths(year) {
   const isLeap = isValenLeap(year);
   return [
     { name: "First Len'tar", days: 150, start: 1, type: 'lentar' },
-    { name: "Inter One", days: 12, start: 151, type: 'inter' },
+    { name: "First Intermission", days: 12, start: 151, type: 'inter' },
     { name: "Second Len'tar", days: 150, start: 163, type: 'lentar' },
-    { name: "Inter Two", days: isLeap ? 14 : 12, start: 313, type: 'inter' },
+    { name: "Second Intermission", days: isLeap ? 14 : 12, start: 313, type: 'inter' },
     { name: "Third Len'tar", days: 150, start: isLeap ? 327 : 325, type: 'lentar' },
-    { name: "Inter Three", days: 12, start: isLeap ? 477 : 475, type: 'inter' }
+    { name: "Third Intermission", days: 12, start: isLeap ? 477 : 475, type: 'inter' }
   ];
 }
 
@@ -53,42 +54,42 @@ function getValenSeasonEvents(year) {
       startDay: 163 + 59,
       endDay: isLeap ? 327 + 105 : 325 + 105,
       color: "#b8d4e8",
-      hover: `❄️ Cold Season (${isLeap ? 209 : 209} days)`
+      hover: `❄️ Cold Season`
     },
     {
       name: "Mini Hot",
       startDay: isLeap ? 327 + 106 : 325 + 106,
       endDay: isLeap ? 327 + 149 : 325 + 149,
       color: "#f5a878",
-      hover: `🔥 Mini Hot Season (44 days)`
+      hover: `🔥 Mini Hot Season`
     },
     {
       name: "Second Cold",
       startDay: isLeap ? 477 : 475,
       endDay: 1 + 42,
       color: "#a8c0d8",
-      hover: `❄️ Second Cold Season (55 days)`
+      hover: `❄️ Second Cold Season`
     },
     {
       name: "Warm",
       startDay: 1 + 43,
       endDay: 1 + 130,
       color: "#d8c878",
-      hover: `🌤️ Warm Season (88 days)`
+      hover: `🌤️ Warm Season`
     },
     {
       name: "Rainy",
       startDay: 1 + 131,
       endDay: 163 + 12,
       color: "#78b8d8",
-      hover: `🌧️ Rainy Season (44 days)`
+      hover: `🌧️ Rainy Season`
     },
     {
       name: "Second Warm",
       startDay: 163 + 13,
       endDay: 163 + 58,
       color: "#c8d878",
-      hover: `☀️ Second Warm Season (46 days)`
+      hover: `☀️ Second Warm Season`
     }
   ];
 }
