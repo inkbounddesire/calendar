@@ -1,4 +1,4 @@
-
+// 29/04/2026 - Veronika Seneca
 // converter.js — depends on constants.js, earth-utils.js, valen-utils.js
 
 const anchorEarthMs = earthToMs(2264, 8, 23);
@@ -7,10 +7,11 @@ function earthToValen(y, m, d) {
   const earthMs = earthToMs(y, m, d);
   const msDiff = earthMs - anchorEarthMs;
   const valenDaysDiff = msDiff / MS_PER_VALEN_DAY;
+  
   let valenTotal = (getValenTotalBeforeYear(ANCHOR_VALEN_YEAR) + (ANCHOR_VALEN_DAY - 1)) + valenDaysDiff;
-
   let remaining = valenTotal;
   let year = 1;
+  
   while (true) {
     const daysInYear = getValenDaysInYear(year);
     if (remaining < daysInYear) {
@@ -30,6 +31,7 @@ function valenToEarth(year, day) {
   const earthMs = anchorEarthMs + msDiff;
   const roundedMs = Math.round(earthMs / MS_PER_EARTH_DAY) * MS_PER_EARTH_DAY;
   const earth = msToEarth(roundedMs);
+  
   return { year: earth.year, month: earth.month, day: earth.day };
 }
 
