@@ -200,7 +200,7 @@ function renderEarth() {
     const seasonStyle = season ? `background: ${season.color};` : '';
     const tooltip = season ? season.hover : '';
 
-    html += `<div class="cal-cell ${sel ? 'highlight' : ''}" data-day="${d}" style="${seasonStyle}" title="${tooltip}">${d}</div>`;
+    html += `<div class="cal-cell ${sel ? 'highlight' : ''}" data-day="${d}" style="${seasonStyle}" data-tooltip="${tooltip}">${d}</div>`;
   }
 
   const totalCells = Math.ceil((offset + daysInMonth) / 7) * 7;
@@ -247,7 +247,7 @@ function renderValen() {
         const cellSeason = getValenSeasonForDate(valenYear, dayOfYear);
         const seasonStyle = cellSeason ? `background: ${cellSeason.color};` : '';
         const tooltip = cellSeason ? cellSeason.hover : '';
-        html += `<div class="cal-cell free-day ${d === selDay ? 'highlight' : ''}" data-vday="${dayOfYear}" style="${seasonStyle}" title="${tooltip}">${d}</div>`;
+        html += `<div class="cal-cell free-day ${d === selDay ? 'highlight' : ''}" data-vday="${dayOfYear}" style="${seasonStyle}" data-tooltip="${tooltip}">${d}</div>`;
       } else {
         html += `<div class="cal-cell empty-cell"></div>`;
       }
@@ -261,7 +261,7 @@ function renderValen() {
         const cellSeason = getValenSeasonForDate(valenYear, dayOfYear);
         const seasonStyle = cellSeason ? `background: ${cellSeason.color};` : '';
         const tooltip = cellSeason ? cellSeason.hover : '';
-        html += `<div class="cal-cell ${d === selDay ? 'highlight' : ''}" data-vday="${dayOfYear}" style="${seasonStyle}" title="${tooltip}">${d}</div>`;
+        html += `<div class="cal-cell ${d === selDay ? 'highlight' : ''}" data-vday="${dayOfYear}" style="${seasonStyle}" data-tooltip="${tooltip}">${d}</div>`;
       }
     }
 
@@ -273,7 +273,7 @@ function renderValen() {
         const cellSeason = getValenSeasonForDate(valenYear, dayOfYear);
         const seasonStyle = cellSeason ? `background: ${cellSeason.color};` : '';
         const tooltip = cellSeason ? cellSeason.hover : '';
-        html += `<div class="cal-cell free-day ${d === selDay ? 'highlight' : ''}" data-vday="${dayOfYear}" style="${seasonStyle}" title="${tooltip}">${d}</div>`;
+        html += `<div class="cal-cell free-day ${d === selDay ? 'highlight' : ''}" data-vday="${dayOfYear}" style="${seasonStyle}" data-tooltip="${tooltip}">${d}</div>`;
       } else {
         html += `<div class="cal-cell empty-cell"></div>`;
       }
@@ -288,7 +288,7 @@ function renderValen() {
       const cellSeason = getValenSeasonForDate(valenYear, dayOfYear);
       const seasonStyle = cellSeason ? `background: ${cellSeason.color};` : '';
       const tooltip = cellSeason ? cellSeason.hover : '';
-      html += `<div class="cal-cell ${extra} ${d === selDay ? 'highlight' : ''}" data-vday="${dayOfYear}" style="${seasonStyle}" title="${tooltip}">${d}</div>`;
+      html += `<div class="cal-cell ${extra} ${d === selDay ? 'highlight' : ''}" data-vday="${dayOfYear}" style="${seasonStyle}" data-tooltip="${tooltip}">${d}</div>`;
     }
     html += `</div>`;
     el.valenContainer.innerHTML = html;
