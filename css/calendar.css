@@ -55,15 +55,19 @@
   
   /* ===== Cell States ===== */
   &.highlight {
-    background: var(--color-bg-highlight);
-    color: var(--color-text-highlight);
-    font-weight: var(--font-weight-bold);
-    border-color: var(--color-border-highlight);
-    
-    &:hover {
-      transform: scale(1.08);
-    }
+  background: var(--color-bg-highlight);
+  color: #fff;
+  font-weight: var(--font-weight-bold);
+  border: 2px solid #6b5a2e;
+  box-shadow: 0 0 8px rgba(165, 131, 62, 0.5);
+  transform: scale(1.08);
+  z-index: var(--z-hover);
+  position: relative;
+  
+  &:hover {
+    transform: scale(1.10);
   }
+}
   
   &.other-month {
     opacity: 0.3;
