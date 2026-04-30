@@ -208,7 +208,7 @@ function renderEarth() {
 
   el.earthGrid.innerHTML = html;
 
-  document.querySelectorAll('#earthCalendarGrid .cal-cell[data-day]').forEach(c => {
+  el.earthGrid.querySelectorAll('.cal-cell[data-day]').forEach(c => {
     c.addEventListener('click', () => {
       state.earthDay = parseInt(c.dataset.day);
       updateFromEarth();
