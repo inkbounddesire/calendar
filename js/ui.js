@@ -287,11 +287,10 @@ function updateFromValen() {
 }
 
 function updateUI() {
-  el.earthYear.value = state.earthYear;
+   el.earthYear.value = state.earthYear;
   el.earthMonth.value = state.earthMonth;
   el.earthDay.value = state.earthDay;
   el.valenYear.value = state.valenYear;
-  el.valenDay.value = state.valenDay;
   el.valenMonth.value = state.valenMonthIdx;
   const currentMonth = getValenMonths(state.valenYear)[state.valenMonthIdx];
   const dayInMonth = state.valenDay - currentMonth.start + 1;
@@ -299,7 +298,7 @@ function updateUI() {
 
   renderEarth();
   renderValen();
-
+  
   const info = getValenMonthInfo(state.valenYear, state.valenDay);
   const timeStr = formatTimeOfDay(state.valenTimeOfDay);
   const earthSeason = getEarthSeasonForDate(state.earthYear, state.earthMonth, state.earthDay, state.hemisphere);
