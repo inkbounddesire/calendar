@@ -226,7 +226,7 @@ function renderValen() {
   state.valenMonthIdx = info.index;
 
   const isLeap = isValenLeap(valenYear);
-  const leapNote = (month.name === "Inter Two" && isLeap) ? ' (leap +2)' : '';
+  const leapNote = (month.name === "Second Intermission" && isLeap) ? ' (leap +2)' : '';
   const season = getValenSeasonForDate(valenYear, valenDay);
   const seasonName = season ? ` · ${season.name}` : '';
   el.valenMonthDisp.textContent = month.name + leapNote;
@@ -284,7 +284,7 @@ function renderValen() {
     let html = `<div class="inter-grid">`;
     for (let d = 1; d <= month.days; d++) {
       const dayOfYear = month.start + d - 1;
-      const extra = (month.name === "Inter Two" && isLeap && d > 12) ? 'leap-day' : '';
+      const extra = (month.name === "Second Intermission" && isLeap && d > 12) ? 'leap-day' : '';
       const cellSeason = getValenSeasonForDate(valenYear, dayOfYear);
       const seasonStyle = cellSeason ? `background: ${cellSeason.color};` : '';
       const tooltip = cellSeason ? cellSeason.hover : '';
