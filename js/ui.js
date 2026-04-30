@@ -25,6 +25,19 @@ function initUI() {
   el.valenContainer = document.getElementById('valenCalendarContainer');
   el.resultMain = document.getElementById('resultMainText');
   el.resultDetails = document.getElementById('resultDetails');
+  el.valenMonth = document.getElementById('valenMonth');
+
+  function rebuildValenMonthSelect() {
+  const months = getValenMonths(state.valenYear);
+  el.valenMonth.innerHTML = '';
+  months.forEach((m, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = m.name;
+    el.valenMonth.appendChild(opt);
+  });
+  el.valenMonth.value = state.valenMonthIdx;
+}
 
   // Populate month select
   EARTH_MONTHS.forEach((m, i) => {
@@ -34,6 +47,8 @@ function initUI() {
     el.earthMonth.appendChild(opt);
   });
   el.earthMonth.value = 8;
+
+  rebuildValenMonthSelect();
 
   // Add hemisphere toggle button
   const earthPanel = document.querySelector('.panel:first-child h2');
@@ -110,16 +125,27 @@ function initUI() {
     const max = getValenDaysInYear(state.valenYear);
     if (state.valenDay > max) state.valenDay = max;
     state.valenTimeOfDay = 0;
+    rebuildValenMonthSelect();
     updateFromValen();
   });
 
+  el.valenMonth.addEventListener('change', () => {
+  state.valenMonthIdx = parseInt(el.valenMonth.value);
+  const months = getValenMonths(state.valenYear);
+  const month = months[state.valenMonthIdx];
+  state.valenDay = month.start;
+  state.valenTimeOfDay = 0;
+  updateFromValen();
+});
+
   el.valenDay.addEventListener('change', () => {
-    state.valenDay = parseInt(el.valenDay.value) || 1;
-    const max = getValenDaysInYear(state.valenYear);
-    if (state.valenDay > max) state.valenDay = max;
-    state.valenTimeOfDay = 0;
-    updateFromValen();
-  });
+  const months = getValenMonths(state.valenYear);
+  const month = months[state.valenMonthIdx];
+  const dayInMonth = parseInt(el.valenDay.value) || 1;
+  state.valenDay = month.start + Math.min(Math.max(dayInMonth, 1), month.days) - 1;
+  state.valenTimeOfDay = 0;
+  updateFromValen();
+});
 }
 
 function renderEarth() {
@@ -266,6 +292,10 @@ function updateUI() {
   el.earthDay.value = state.earthDay;
   el.valenYear.value = state.valenYear;
   el.valenDay.value = state.valenDay;
+  el.valenMonth.value = state.valenMonthIdx;
+  const currentMonth = getValenMonths(state.valenYear)[state.valenMonthIdx];
+  const dayInMonth = state.valenDay - currentMonth.start + 1;
+  el.valenDay.value = dayInMonth;
 
   renderEarth();
   renderValen();
