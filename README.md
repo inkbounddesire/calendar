@@ -10,29 +10,20 @@ A side-by-side calendar converter between Earth's Gregorian calendar and the fic
 - **Day lengths**: Earth = 24h, Valen = 20.783h
 
 ## Project Structure
-
-├── home.html            — HTML structure, no inline JS or CSS
-├── css/
-│   └── styles.css       — all styles (earthy, paper-like theme)
-└── js/
-    ├── constants.js     — all constants, anchor dates, labels
-    ├── earth-utils.js   — Earth leap year, days in month, date math, Earth seasons
-    ├── valen-utils.js   — Valen leap year, months, seasons, day counting
-    ├── converter.js     — conversion functions: Earth ⇄ Valen
-    └── ui.js            — state, DOM rendering, event listeners
+home.html
+css/
+  styles.css
+js/
+  constants.js
+  earth-utils.js
+  valen-utils.js
+  converter.js
+  ui.js
 
 ## Dependency chain
-    constants.js
-         │
-    ┌────┴────┐
-    │         │
-earth-utils  valen-utils
-    │         │
-    └────┬────┘
-         │
-    converter.js
-         │
-       ui.js
+constants.js -> earth-utils.js
+constants.js -> valen-utils.js
+earth-utils.js + valen-utils.js -> converter.js -> ui.js
 
 All scripts loaded from home.html in order.
 ui.js calls initUI() and updateUI() on DOMContentLoaded.
