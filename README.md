@@ -10,7 +10,7 @@ A side-by-side calendar converter between Earth's Gregorian calendar and the fic
 - **Day lengths**: Earth = 24h, Valen = 20.783h
 
 ## Project Structure
-Project Structure
+
 ├── home.html            — HTML structure, no inline JS or CSS
 ├── css/
 │   └── styles.css       — all styles (earthy, paper-like theme)
