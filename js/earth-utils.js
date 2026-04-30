@@ -1,3 +1,4 @@
+// 29/04/2026 - Veronika Seneca
 // earth-utils.js — depends on constants.js
 
 function isEarthLeap(year) {
@@ -33,20 +34,37 @@ function getEarthSeasonEvents(year) {
   const sepEquinox = (year % 4 === 0) ? 22 : 23;
   const decSolstice = 21;
 
-  return {
-    northern: [
-      { name: "Winter", start: { month: 11, day: decSolstice }, end: { month: 2, day: marEquinox - 1 }, color: "#a8c8e8", hover: `❄️ Winter (Dec ${decSolstice} - Mar ${marEquinox - 1})` },
-      { name: "Spring", start: { month: 2, day: marEquinox }, end: { month: 5, day: junSolstice - 1 }, color: "#f0c0d0", hover: `🌸 Spring (Mar ${marEquinox} - Jun ${junSolstice - 1})` },
-      { name: "Summer", start: { month: 5, day: junSolstice }, end: { month: 8, day: sepEquinox - 1 }, color: "#a8d8a8", hover: `☀️ Summer (Jun ${junSolstice} - Sep ${sepEquinox - 1})` },
-      { name: "Autumn", start: { month: 8, day: sepEquinox }, end: { month: 11, day: decSolstice - 1 }, color: "#f0b860", hover: `🍂 Autumn (Sep ${sepEquinox} - Dec ${decSolstice - 1})` }
-    ],
-    southern: [
-      { name: "Summer", start: { month: 11, day: decSolstice }, end: { month: 2, day: marEquinox - 1 }, color: "#a8d8a8", hover: `☀️ Summer (Dec ${decSolstice} - Mar ${marEquinox - 1})` },
-      { name: "Autumn", start: { month: 2, day: marEquinox }, end: { month: 5, day: junSolstice - 1 }, color: "#f0b860", hover: `🍂 Autumn (Mar ${marEquinox} - Jun ${junSolstice - 1})` },
-      { name: "Winter", start: { month: 5, day: junSolstice }, end: { month: 8, day: sepEquinox - 1 }, color: "#a8c8e8", hover: `❄️ Winter (Jun ${junSolstice} - Sep ${sepEquinox - 1})` },
-      { name: "Spring", start: { month: 8, day: sepEquinox }, end: { month: 11, day: decSolstice - 1 }, color: "#f0c0d0", hover: `🌸 Spring (Sep ${sepEquinox} - Dec ${decSolstice - 1})` }
-    ]
-  };
+  const createSeason = (name, startMonth, startDay, endMonth, endDay, color, emoji) => ({
+    name,
+    start: { month: startMonth, day: startDay },
+    end: { month: endMonth, day: endDay },
+    color,
+    hover: `${emoji} ${name} (${getMonthAbbr(startMonth)} ${startDay} - ${getMonthAbbr(endMonth)} ${endDay})`
+  });
+
+  const northern = [
+    createSeason("Winter", 11, decSolstice, 2, marEquinox - 1, "#a8c8e8", "❄️"),
+    createSeason("Spring", 2, marEquinox, 5, junSolstice - 1, "#f0c0d0", "🌸"),
+    createSeason("Summer", 5, junSolstice, 8, sepEquinox - 1, "#a8d8a8", "☀️"),
+    createSeason("Autumn", 8, sepEquinox, 11, decSolstice - 1, "#f0b860", "🍂")
+  ];
+
+  const southern = [
+    createSeason("Summer", 11, decSolstice, 2, marEquinox - 1, "#a8d8a8", "☀️"),
+    createSeason("Autumn", 2, marEquinox, 5, junSolstice - 1, "#f0b860", "🍂"),
+    createSeason("Winter", 5, junSolstice, 8, sepEquinox - 1, "#a8c8e8", "❄️"),
+    createSeason("Spring", 8, sepEquinox, 11, decSolstice - 1, "#f0c0d0", "🌸")
+  ];
+
+  return { northern, southern };
+}
+
+function getMonthAbbr(month) {
+  const months = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+  ];
+  return months[month - 1]; 
 }
 
 function getEarthSeasonForDate(year, month, day, hemisphere = 'northern') {
