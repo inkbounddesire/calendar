@@ -34,6 +34,14 @@ function getEarthSeasonEvents(year) {
   const sepEquinox = (year % 4 === 0) ? 22 : 23;
   const decSolstice = 21;
 
+  // Season definitions by northern hemisphere order
+  const seasons = [
+    { n: "Winter", s: "Summer", m1: 11, d1: decSolstice, m2: 2, d2: marEquinox - 1, cn: "#a8c8e8", cs: "#a8d8a8", en: "❄️", es: "☀️" },
+    { n: "Spring", s: "Autumn", m1: 2,  d1: marEquinox,  m2: 5, d2: junSolstice - 1, cn: "#f0c0d0", cs: "#f0b860", en: "🌸", es: "🍂" },
+    { n: "Summer", s: "Winter",  m1: 5,  d1: junSolstice, m2: 8, d2: sepEquinox - 1, cn: "#a8d8a8", cs: "#a8c8e8", en: "☀️", es: "❄️" },
+    { n: "Autumn", s: "Spring", m1: 8,  d1: sepEquinox, m2: 11, d2: decSolstice - 1, cn: "#f0b860", cs: "#f0c0d0", en: "🍂", es: "🌸" }
+  ];
+
   const createSeason = (name, startMonth, startDay, endMonth, endDay, color, emoji) => ({
     name,
     start: { month: startMonth, day: startDay },
@@ -42,21 +50,10 @@ function getEarthSeasonEvents(year) {
     hover: `${emoji} ${name} (${getMonthAbbr(startMonth)} ${startDay} - ${getMonthAbbr(endMonth)} ${endDay})`
   });
 
-  const northern = [
-    createSeason("Winter", 11, decSolstice, 2, marEquinox - 1, "#a8c8e8", "❄️"),
-    createSeason("Spring", 2, marEquinox, 5, junSolstice - 1, "#f0c0d0", "🌸"),
-    createSeason("Summer", 5, junSolstice, 8, sepEquinox - 1, "#a8d8a8", "☀️"),
-    createSeason("Autumn", 8, sepEquinox, 11, decSolstice - 1, "#f0b860", "🍂")
-  ];
-
-  const southern = [
-    createSeason("Summer", 11, decSolstice, 2, marEquinox - 1, "#a8d8a8", "☀️"),
-    createSeason("Autumn", 2, marEquinox, 5, junSolstice - 1, "#f0b860", "🍂"),
-    createSeason("Winter", 5, junSolstice, 8, sepEquinox - 1, "#a8c8e8", "❄️"),
-    createSeason("Spring", 8, sepEquinox, 11, decSolstice - 1, "#f0c0d0", "🌸")
-  ];
-
-  return { northern, southern };
+  return {
+    northern: seasons.map(s => createSeason(s.n, s.m1, s.d1, s.m2, s.d2, s.cn, s.en)),
+    southern: seasons.map(s => createSeason(s.s, s.m1, s.d1, s.m2, s.d2, s.cs, s.es))
+  };
 }
 
 function getMonthAbbr(month) {
