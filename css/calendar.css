@@ -124,7 +124,7 @@
   bottom: calc(100% + 6px);
   left: 50%;
   transform: translateX(-50%);
-  background: #3b3a33;
+  background: rgba(59, 58, 51, 0.85);
   color: #f5f3eb;
   padding: 6px 14px;
   border-radius: 20px;
@@ -135,6 +135,7 @@
   opacity: 0;
   transition: opacity 0.15s ease;
   z-index: 100;
+  backdrop-filter: blur(4px);
 }
 
 .cal-cell[data-tooltip]:hover::after {
