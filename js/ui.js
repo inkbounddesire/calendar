@@ -1,3 +1,4 @@
+// 29/04/2026 - Veronika Seneca
 // ui.js — depends on all previous files + DOM elements
 
 // State
